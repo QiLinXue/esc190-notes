@@ -15,7 +15,7 @@
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
     <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/2f761d4/dist/bootstrap-toc.min.js"></script>
-
+      
     <link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
@@ -216,7 +216,7 @@ The memory table stores a lot of information, including metadata. You will learn
 <h2 id="L4-binary">Binary</h2>
 We can interpret the binary number \(1101\) as 
 \[1101_\text{binary} = 1 \cdot 2^3 + 1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0 = 13.\]
-Note that this is also exactly how decimals work! Note that
+Remark: that this is also exactly how decimals work! Also,
 \[521 = 5\cdot 10^2 + 2 \cdot 10^1 + 1 \cdot 10^0.\]
 It is less obvious how to go from decimal to binary. Suppose we want to convert \(25\) to binary.
 <ul>
@@ -257,7 +257,7 @@ b_0b_1b_2b_3b_4b_5b_6b_7 = \begin{cases}
 -(b_12^6 + b_22^5 + b_32^4+b_42^3 + b_52^2 + b_62^1 + b_7) & \text{if }b_0 = 1
 \end{cases}
 \]
-Note that this is not the only way to represent numbers. Different schemes exist for different types, though there are some standard conventions (i.e. IEEE 754 for floats).
+This is not the only way to represent numbers. Different schemes exist for different types, though there are some standard conventions (i.e. IEEE 754 for floats).
 
 In Unicode, the first bit tells us whether we use ASCII characters (which we will use) or Unicode (which is more complicated).
 <h2 id="L3-characters">Characters and Strings</h2>
@@ -279,12 +279,6 @@ int main(){
 }</code></pre>
 where <code>s</code> is the address of the first character in the string (in this case, the address of 'H'). The last character in the string is <code>\0</code> (can otherwise write it as <code>0</code> or <code>NULL</code>). Therefore, the program is able to read off a string by going to the address of the first character, and moving down the table (which is where the other characters are stored) until the null character is found. Explicitly, this is stored in the memory table as (only showing part of the table)
 <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Address</th>
-        <th scope="col">Value</th>
-      </tr>
-    </thead>
     <tbody>
       <tr>
         <th scope="row">16</th>
@@ -318,6 +312,13 @@ where <code>s</code> is the address of the first character in the string (in thi
         <th scope="row">23</th>
         <td>.</td>
       </tr>
+    </tbody><tbody>
+      <tr>
+        <th scope="row"></th>
+        <td></td>
+      </tr>
+    </tbody>
+    <tbody>
       <tr>
         <th scope="row">24</th>
         <td><code>'e'</code></td>
@@ -330,9 +331,69 @@ where <code>s</code> is the address of the first character in the string (in thi
         <th scope="row">26</th>
         <td>.</td>
       </tr>
+      <tr>
+        <th scope="row">27</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">28</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">29</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">30</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">31</th>
+        <td>.</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th scope="row"></th>
+        <td></td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th scope="row">32</th>
+        <td><code>'l'</code></td>
+      </tr>
+      <tr>
+        <th scope="row">33</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">34</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">35</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">36</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">37</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">38</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">39</th>
+        <td>.</td>
+      </tr>
     </tbody>
   </table>
-  Note that the dot is used to denote that it takes 8 bits to store each character.
+  Here, the dot is used to denote that it takes 8 bits (1 byte) to store each character.
 <br><br><br><br>
 </div>
     </div>
