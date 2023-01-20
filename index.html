@@ -262,7 +262,13 @@ Note that this is not the only way to represent numbers. Different schemes exist
 In Unicode, the first bit tells us whether we use ASCII characters (which we will use) or Unicode (which is more complicated).
 <h2 id="L3-characters">Characters and Strings</h2>
 The above discussion helps us understand how characters and strings are stored and worked with in C.  Consider the following program,
-<iframe src="https://runno.run/?editor=1&runtime=clang&code=I2luY2x1ZGUgPHN0ZGlvLmg-CmludCBtYWluKCl7CiAgICBjaGFyIGMgPSAneCc7CiAgICBwcmludGYoIiVjICVkIiwgYywgKGludCljKTsKCiAgICByZXR1cm4gMDsKfQ.." crossorigin allow="cross-origin-isolated" width="640" height="320" frameBorder="0"></iframe>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main(){
+    char c = 'x';
+    printf("%c %d", c, (int)c);
+
+    return 0;
+}</code></pre>
 Notice that the program outputs <code>x 120</code>. This is because we can interpret <code>c</code> as a character, so it outputs <code>x</code> or interpret it as an integer, in which case it outputs its ASCII value <code>120</code>.
 
 We can store strings by writing
