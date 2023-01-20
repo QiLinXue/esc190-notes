@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <title>ESC190 Lecture Notes</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/2f761d4/dist/bootstrap-toc.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css" />
+    <!--[if lt IE 9]>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.ie.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="assets/screen.css" media="screen" charset="utf-8">
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/2f761d4/dist/bootstrap-toc.min.js"></script>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- <link rel="stylesheet" href="/path/to/styles/default.min.css">
+<script src="/path/to/highlight.min.js"></script> -->
+
+<!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
+
+<script>hljs.highlightAll();</script>
+</head>
+  <body data-spy="scroll" data-target="#toc">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <nav id="toc" data-spy="affix" data-toggle="toc"></nav>
+        </div>
+        <div class="col-sm-8 col-md-7">
+
+
+<h1 id="-esc190-lecture-notes">ESC190 Lecture Notes</h1>
+    <p>Lecture Notes for ESC190 Winter 2023. Author: QiLin Xue</p>
+<h1 id="L2">L2: Introduction to C, pointers and dereferencing</h1>
+<h2 id="L2-syntax">Variables</h2>
+Like Python, there are different types of variables. Unlike Python, you need to declare what type it is when you initialize. After initializing, we can only change this variable to another value of the same type.
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main(){
+    int a = 42; // Need to initialize the type of variable
+    a = 43; // Changing the value of an already initialized variable
+    // a = "hi"; will give an error or warning!
+
+    printf("%d\n", a); // Prints 43
+
+    return 0;
+}
+</code></pre>
+Why does C do this? Because compiler needs to assign the appropriate space in the memory table. Therefore, we need to think of variables in a slightly different way. When the code initializes, it stores 42 in memory, i.e. at address 3040 (nothing inherently special about this number, only here so we have a concrete example). <b>The program associates <code>a</code> with this address.</b> The table becomes,<br><br>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Address</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">3040</th>
+        <td><code>42</code> (<code>a</code> of type <code>int</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">3072</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">3104</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">3136</th>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  After the line <code>a = 43;</code> is run, the program will look at the address in which the value of <code>a</code> is stored, and change that value to 43. The table then changes to,<br><br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Address</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">3040</th>
+        <td><code>43</code> (<code>a</code> of type <code>int</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">3072</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">3104</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">3136</th>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+ Note that this is not how Python works. Changing the value of a variable will change the address of that variable. C is therefore <i>more</i> intuitive in the sense that variables are associated with a location in physical memory.
+ 
+ Finally, the line <code>printf("%d\n",a)</code> tells us to print the value of <code>a</code>. The format specifier <code>%d</code> tells the program to interpret <code>a</code> as an integer, and <code>\n</code> tells the code to make a line break. Here is a list of <a href="https://www.tutorialspoint.com/format-specifiers-in-c">format specifiers.</a>
+ <h2 id="L2-pointers">Pointers</h2>
+ We can store the address of variables using <i>pointers.</i> To create a variable <code>p_a</code> that can store the address of another variable, we use the <code>int*</code> type. The operator <code>&</code> retrieves the address of a given variable.
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main(){
+    int a = 42;
+    int* p_a = &a; // & is the "address-of" operator
+                   // int* is the type "address of int"
+    printf("%ld\n", p_a); // %ld specifies a long integer
+    return 0;
+}</code></pre>
+In the above code, <code>p_a</code> stores the address of <code>a</code>, which if we continue to use our earlier memory table, is equal to 3040. We can print the pointer using the type specifier <code>%ld</code>, as pointers are stored as long integers (which takes twice as more bits than regular integers).<br><br>
+
+Typically, long integers are 64 bits on most systems and integers are 32 bits. If you haven't noticed, this is why the addresses in our example tables go up by 32! (to make visualization easier)<br><br>
+
+The above code may give a warning (depends on system) that the formats that <code>%ld</code> expects and the variable given don't match, as <code>p_a</code> technically has type <code>int*</code>. However, because we can represent <code>p_a</code> as a long integer, we can cast it by running <code class="language-C">printf("%ld\n", (long int)p_a);</code> instead.
+
+<h2>Dereferencing Operator</h2>
+The dereferencing operator is given by <code>*</code> and acts on a memory address to get the value stored in memory at that address. For example, the code <code class="language-C">int value_of_a = *p_a;</code> tells us the program to get the value of <code>p_a</code> which is an address, then go to that address, and retrieve the value stored there. Suppose we run the code
+<pre><code class="language-C">#include &lt;stdio.h&gt
+    int main(){
+        int a = 42;
+        int* p_a = &a;
+        int b = *p_a; 
+        return 0;
+    }</code></pre> we get the following memory table:<br><br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Address</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">3040</th>
+        <td><code>43</code> (<code>a</code> of type <code>int</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">3072</th>
+        <td><code>3040</code> (<code>p_a</code> of type <code>int*</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">3104</th>
+        <td><code>43</code> (<code>b</code> of type <code>int</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">3136</th>
+        <td></td>
+      </tr>
+    </tbody>
+  </table> The symbol <code>*</code> is used both to define variables (i.e. as a type) and also as an operator for dereferencing. While both are used in the context of memory, they are separate.
+<h2 id="L2-functions">Functions</h2>
+Functions generally work mostly the same way as Python. It is important to note that when an input is passed to the function, the function makes a copy of it in the sense that it uses a different locals frame. For example,
+<pre><code class="language-C">#include &lt;stdio.h&gt
+    int f(int x){
+        return x + 1;
+    }
+    int main(){
+        int a = 42;
+        int* p_a = &a;
+        int b = *p_a; 
+
+        int c = f(b);
+        return 0;
+    }</code></pre>
+    which gives the additional memory table,<br><br>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Address</th>
+            <th scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1280</th>
+            <td><code>5</code> (<code>x</code> of type <code>int</code>)</td>
+          </tr>
+          <tr>
+            <th scope="row">3072</th>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">1336</th>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">1368</th>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      Therefore, if we were to change the value of <code>x</code> inside the function, it would only affect the value at address 1280, and the value of <code>b</code> (from the main memory table) will not be affected. 
+
+<h1 id="L3">L3: Binary representation of ints, floats, and strings</h1>
+At a fundamental level, computer memory can be seen as a physical table where in each cell, the voltage is either high (1) or low (0). It does not know anything about types. A single <code>0</code> or <code>1</code> is a bit, and 
+<ul>
+    <li>8 bits = byte</li>
+    <li>kilobyte = 1024 bytes</li>
+    <li>megabyte = 1000 kilobytes</li>
+</ul>
+The memory table stores a lot of information, including metadata. You will learn more about this in courses such as ECE253 and higher level 300+ courses. In this course, we will only deal with memory tables in the context of storing variables.
+<h2 id="L4-binary">Binary</h2>
+We can interpret the binary number \(1101\) as 
+\[1101_\text{binary} = 1 \cdot 2^3 + 1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0 = 13.\]
+Note that this is also exactly how decimals work! Note that
+\[521 = 5\cdot 10^2 + 2 \cdot 10^1 + 1 \cdot 10^0.\]
+It is less obvious how to go from decimal to binary. Suppose we want to convert \(25\) to binary.
+<ul>
+    <li>Right-to-left:</li>
+    <ol>
+        <li>25 is odd, so last digit in binary is \(1\). We now have to represent (25-1)/2 = 12.</li>
+        <li>12 is even, so 2nd last digit in binary is \(0\). We now have to represent (12-0)/12 = 6.</li>
+        <li>6 is even, so 3rd last digit in binary is \(0\). We now have to represent (6-0)/12 = 3.</li>
+        <li>3 is odd, so 4th last digit in binary is \(1\). We now have to represent (3-1)/2 = 1.</li>
+        <li>We can represent 1 by \(1\).</li>
+    </ol>
+    which gives 
+    \[11001\]
+    A Python implementation is given below
+    <iframe src="https://trinket.io/embed/python3/7b7fd3c0aa" width="100%" height="356" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>
+    <li>Left-to-right:</li>
+    <ul>
+
+    <li>
+        The idea is that we want to write 25 as 
+        \[25 = b_k2^k +b_{k-1}2^{k-1} + \cdots + b_12^1 + b_0\]
+        Are we able to figure out what \(k\) is? We can determine the <i>largest power of 2 that fits into 25,</i> which is \(2^4=16\). We still need to represent \(25-16=9\)
+    </li>
+    <li>
+        The largest power of 2 that can fit in 9 is \(2^3=8\). We then need to represent \(9-8=1\)
+    </li>
+    <li>
+        The largest power of 2 that can fit in 1 is \(2^0=1\). We are now done.
+    </li>
+    We have decomposed \(25\) into powers of 2. That is,
+    \[25 = 2^4 + 2^3 + 2^0 = 11001_\text{binary}.\]
+    </ul>
+</ul>
+For 8-bit binary numbers, the 0th digit is the sign and the other 7 bits are the quantity. For example,
+\[
+b_0b_1b_2b_3b_4b_5b_6b_7 = \begin{cases}
++(b_12^6 + b_22^5 + b_32^4+b_42^3 + b_52^2 + b_62^1 + b_7) & \text{if }b_0 = 0 \\
+-(b_12^6 + b_22^5 + b_32^4+b_42^3 + b_52^2 + b_62^1 + b_7) & \text{if }b_0 = 1
+\end{cases}
+\]
+Note that this is not the only way to represent numbers. Different schemes exist for different types, though there are some standard conventions (i.e. IEEE 754 for floats).
+
+In Unicode, the first bit tells us whether we use ASCII characters (which we will use) or Unicode (which is more complicated).
+<h2 id="L3-characters">Characters and Strings</h2>
+The above discussion helps us understand how characters and strings are stored and worked with in C.  Consider the following program,
+<iframe src="https://runno.run/?editor=1&runtime=clang&code=I2luY2x1ZGUgPHN0ZGlvLmg-CmludCBtYWluKCl7CiAgICBjaGFyIGMgPSAneCc7CiAgICBwcmludGYoIiVjICVkIiwgYywgKGludCljKTsKCiAgICByZXR1cm4gMDsKfQ.." crossorigin allow="cross-origin-isolated" width="640" height="320" frameBorder="0"></iframe>
+Notice that the program outputs <code>x 120</code>. This is because we can interpret <code>c</code> as a character, so it outputs <code>x</code> or interpret it as an integer, in which case it outputs its ASCII value <code>120</code>.
+
+We can store strings by writing
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main(){
+    char* s = "Hello, World!";
+    return 0;
+}</code></pre>
+where <code>s</code> is the address of the first character in the string (in this case, the address of 'H'). The last character in the string is <code>\0</code> (can otherwise write it as <code>0</code> or <code>NULL</code>). Therefore, the program is able to read off a string by going to the address of the first character, and moving down the table (which is where the other characters are stored) until the null character is found. Explicitly, this is stored in the memory table as (only showing part of the table)
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Address</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">16</th>
+        <td><code>'H'</code></td>
+      </tr>
+      <tr>
+        <th scope="row">17</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">18</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">19</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">20</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">21</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">22</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">23</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">24</th>
+        <td><code>'e'</code></td>
+      </tr>
+      <tr>
+        <th scope="row">25</th>
+        <td>.</td>
+      </tr>
+      <tr>
+        <th scope="row">26</th>
+        <td>.</td>
+      </tr>
+    </tbody>
+  </table>
+  Note that the dot is used to denote that it takes 8 bits to store each character.
+<br><br><br><br>
+</div>
+    </div>
+  </body>
+</html>
