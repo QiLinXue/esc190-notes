@@ -14,41 +14,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <title>ESC190 Lecture Notes</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/2f761d4/dist/bootstrap-toc.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css" />
-    <!--[if lt IE 9]>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.ie.min.css" />
-    <![endif]-->
-    <link rel="stylesheet" href="assets/screen.css" media="screen" charset="utf-8">
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
-    <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/2f761d4/dist/bootstrap-toc.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous"> -->
+
+    <!-- Bootstrap Style -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+
+    <!-- TOC CSS -->
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/bootstrap-toc.css">
+
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/assets/screen.css" media="screen" charset="utf-8">
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://afeld.github.io/bootstrap-toc/bootstrap-toc.js"></script>
       
-    <link rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<!-- <link rel="stylesheet" href="/path/to/styles/default.min.css">
-<script src="/path/to/highlight.min.js"></script> -->
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
-<!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
+<script type="text/javascript">
+  (function (i, s, o, g, r, a, m) {
+    i["GoogleAnalyticsObject"] = r;
+    (i[r] =
+      i[r] ||
+      function () {
+        (i[r].q = i[r].q || []).push(arguments);
+      }),
+      (i[r].l = 1 * new Date());
+    (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m);
+  })(
+    window,
+    document,
+    "script",
+    "//www.google-analytics.com/analytics.js",
+    "ga"
+  );
 
-<script>hljs.highlightAll();</script>
+  ga("create", "UA-19048260-11", "auto");
+  ga("send", "pageview");
+
+  hljs.highlightAll();
+</script>
 </head>
-  <body data-spy="scroll" data-target="#toc">
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-4">
-          <nav id="toc" data-spy="affix" data-toggle="toc"></nav>
-        </div>
-        <div class="col-sm-8 col-md-7">
+<body data-bs-spy="scroll" data-target="#toc">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+      <div class="col-sm-9">
 
 
 <h1 id="-esc190-lecture-notes">ESC190 Lecture Notes</h1>
-    <p>Lecture Notes for ESC190 Winter 2023. Author: QiLin Xue</p>
+    <p>These are official course notes for ESC190: Computer Algorithms and Data Structures.
+      <br><br>
+      I will do my best to update notes within 24 hours of the lecture recording being posted. If you have any feedback, questions, clarifications, or if you see a typo or a mistake, feel free to email me at <a href="mailto:qilin.xue@mail.utoronto.ca">qilin.xue@mail.utoronto.ca</a>.
+      <br><br>
+      Cheers!<br>
+      QiLin
+    </p>
 <h1 id="L2">L2: Introduction to C, pointers and dereferencing</h1>
 <h2 id="L2-syntax">Variables</h2>
 Like Python, there are different types of variables. Unlike Python, you need to declare what type it is when you initialize. After initializing, we can only change this variable to another value of the same type.
@@ -403,6 +446,253 @@ where <code>s</code> is the address of the first character in the string (in thi
     </tbody>
   </table>
   Here, the dot is used to denote that it takes 8 bits (1 byte) to store each character.
+
+<h1 id="L4">L4: Strings and Changing Variables in Functions</h1>
+<div class="card">
+  <h2 class="card-header" id="L3-review">Warm Up Question</h5>
+  <div class="card-body">
+    Draw the corresponding memory table given the following program. Assume an integer takes up 4 bytes.
+
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main(){
+    int a = 5;
+    int b = 10;
+    int* p_a = 0;
+    p_a = &a;
+    b = *p_a;
+}
+</code></pre>
+<p>
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#L3Example" role="button" aria-expanded="false" aria-controls="L3Example">
+    Show Solution
+  </a>
+</p>
+<div class="collapse" id="L3Example">
+  <div class="card card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Address</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1600</th>
+          <td><code>5</code> (<code>a</code> of type <code>int</code>)</td>
+        </tr>
+        <tr>
+          <th scope="row">1632</th>
+          <td><code>5</code> (<code>b</code> of type <code>int</code>)</td>
+        </tr>
+        <tr>
+          <th scope="row">1664</th>
+          <td><code>1600</code> (<code>p_a</code> of type <code>int*</code></td>
+        </tr>
+        <tr>
+          <th scope="row">1696</th>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+</div>
+Note that in the above example, not every address was written down. In C, every address is a byte. We can use the <code>sizeof</code> operator, which gives the size of an object. For example, <code>sizeof(int)</code> gives the size of an int and <code>sizeof(a)</code> gives the size of the variable <code>a</code>. The output is represented in bits. We can print this to console using<code>printf("%ud", sizeof(int))</code>
+<h2 id="L4-strings">Strings</h2>
+Recall that each character will always be 1 byte. The reason this is important is if we recall strings can be defined using a <i>pointer,</i><br><br>
+<pre><code class="language-C">char *s = "xyz"</code></pre>
+we get a memory table that looks like,<br><br>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [main]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1824</th>
+      <td><code>'x'</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1832</th>
+      <td><code>'y'</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1840</th>
+      <td><code>'z'</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1848</th>
+      <td><code>\0</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1856</th>
+      <td><code>1824</code> (<code>s</code> of type "address of char")</td>
+    </tr>
+  </tbody>
+</table>
+A few key observations:
+<ul>
+  <li>Each address can hold 1 byte and each character is 1 byte. Perfect!</li>
+  <li>The null character <code>\0</code> signifies the end of the string, so that we know when to stop. This is important, because we don't store the length anywhere!</li>
+  <li>The variable <code>s</code> gets stored elsewhere and is equal to the address of the first character.</li>
+  <li>We are specifying that the addresses are part of the main locals frame. This is important in the next subsection where we will be also working with the locals frame of a particular function.</li>
+</ul>
+We can treat <code>s</code> as just any other variable! For example,<br><br>
+<pre><code class="language-C">printf("%c", *s);</code></pre>
+will print out <code>'x'</code>, and<br><br>
+<pre><code class="language-C">printf("%ld", (long int)s);</code></pre>
+will print <code>'1824'</code>.
+
+<h2 id="L4-functions">Changing Variables in Functions</h2>
+Suppose we have the following naive attempt at changing a variable through a function. We have,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+void f(int a) // NOTE: INCORRECT
+{
+  a = 12;
+}
+
+int main()
+{
+  int a = 5;
+  f(a);
+  printf("%d", a);
+}
+</code></pre>
+When the function is run, a locals frame for the function will be created, so after the line <code>a=12;</code> is run, the memory table looks like this:
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [f]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">128</th>
+      <td><code>12</code> (<code>a</code> of type <code>int</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">160</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">192</th>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [main]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1600</th>
+      <td><code>5</code> (<code>a</code> of type <code>int</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">1632</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">1664</th>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+Therefore, when variables are defined inside a function, they are stored in a different locals frame. When we exit the function, we no longer get access to inside the function locals frame and the original value of <code>a</code> is unchanged.
+<br><br>
+So how do we fix this?
+<br><br>
+The standard solution is to instead pass the value of <code>a</code> (or else the function will just create a copy of it), we pass in the address <code>&a</code>. The function does not need to change what this address is, but it can read off this value and go to the proper location in memory and modify it. The correct implementation is<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+void f(int* p_a)
+{
+  *p_a = 12;
+}
+
+int main()
+{
+  int a = 5;
+  f(&a);
+  printf("%d", a);
+}</code></pre>
+The parameter that the function takes in is of type <code>int*</code> so we need to send in an address. Inside the function, the line <code>*p_a = 12;</code> tells us to go to the address given by <code>p_a</code> (via the dereference operator <code>*</code>) and assign the value <code>12</code> to it. The memory table then looks like
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [f]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">128</th>
+      <td><code>1600</code> (<code>p_a</code> of type <code>int*</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">160</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">192</th>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [main]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1600</th>
+      <td><code>12</code> (<code>a</code> of type <code>int</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">1632</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">1664</th>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+How does this relate to Python? If we consider the code<br><br>
+<pre><code class="language-py">def f(a):
+  a = 12
+def main():
+  a = 5
+  f(a)
+</code></pre>
+then the same thing happens in C. The value of <code>a</code> remains unchanged. However, lists are mutable and can be changed inside a function. Consider<br><br>
+<pre><code class="language-py">def f(L):
+  L[0] = 12
+def main():
+  L = [5, 6]
+  g(L)
+</code></pre>
+Then passing in the variable <code>L</code> means having the <code>L</code> in the function refer to the same address as the <code>L</code> defined in the main function. However in Python, most variables are immutable (integers, floats, strings, Booleans, and tuples), so we cannot change them by modifying their value at a certain address! To see this concretely, feel free to run:<br><br>
+<pre><code class="language-py">a = 1
+print(id(a)) # prints the address
+a = 2
+print(id(a)) # prints the address
+</code></pre>
+and see that the memory addresses are different, so behind the scenes, Python is writing <code>2</code> in a new space in memory and then associating the variable <code>a</code> with this new address.
+<br><br>
+Because C gives us more freedom to work directly with the memory, we can do much more powerful things and implement more complex data structures, as we will see in the coming weeks.
 <br><br><br><br>
 </div>
     </div>
