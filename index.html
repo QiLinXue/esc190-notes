@@ -96,7 +96,8 @@
 <h2 id="L2-syntax">Variables</h2>
 Like Python, there are different types of variables. Unlike Python, you need to declare what type it is when you initialize. After initializing, we can only change this variable to another value of the same type.
 <pre><code class="language-C">#include &lt;stdio.h&gt
-int main(){
+int main()
+{
     int a = 42; // Need to initialize the type of variable
     a = 43; // Changing the value of an already initialized variable
     // a = "hi"; will give an error or warning!
@@ -166,7 +167,8 @@ Why does C do this? Because compiler needs to assign the appropriate space in th
  <h2 id="L2-pointers">Pointers</h2>
  We can store the address of variables using <i>pointers.</i> To create a variable <code>p_a</code> that can store the address of another variable, we use the <code>int*</code> type. The operator <code>&</code> retrieves the address of a given variable.
 <pre><code class="language-C">#include &lt;stdio.h&gt
-int main(){
+int main()
+{
     int a = 42;
     int* p_a = &a; // & is the "address-of" operator
                    // int* is the type "address of int"
@@ -182,7 +184,8 @@ The above code may give a warning (depends on system) that the formats that <cod
 <h2>Dereferencing Operator</h2>
 The dereferencing operator is given by <code>*</code> and acts on a memory address to get the value stored in memory at that address. For example, the code <code class="language-C">int value_of_a = *p_a;</code> tells us the program to get the value of <code>p_a</code> which is an address, then go to that address, and retrieve the value stored there. Suppose we run the code
 <pre><code class="language-C">#include &lt;stdio.h&gt
-    int main(){
+    int main()
+{
         int a = 42;
         int* p_a = &a;
         int b = *p_a; 
@@ -206,21 +209,24 @@ The dereferencing operator is given by <code>*</code> and acts on a memory addre
       </tr>
       <tr>
         <th scope="row">3104</th>
-        <td><code>43</code> (<code>b</code> of type <code>int</code>)</td>
+        <td>(space taken up by above)</td>
       </tr>
       <tr>
         <th scope="row">3136</th>
-        <td></td>
+        <td><code>43</code> (<code>b</code> of type <code>int</code>)</td>
       </tr>
     </tbody>
   </table> The symbol <code>*</code> is used both to define variables (i.e. as a type) and also as an operator for dereferencing. While both are used in the context of memory, they are separate.
+
+  You may notice that the variable <code>p_a</code> takes up 64 bits instead of the standard 32 bits. This is because addresses are usually stored as long integers by most systems.
 <h2 id="L2-functions">Functions</h2>
 Functions generally work mostly the same way as Python. It is important to note that when an input is passed to the function, the function makes a copy of it in the sense that it uses a different locals frame. For example,
 <pre><code class="language-C">#include &lt;stdio.h&gt
     int f(int x){
         return x + 1;
     }
-    int main(){
+    int main()
+{
         int a = 42;
         int* p_a = &a;
         int b = *p_a; 
@@ -242,15 +248,15 @@ Functions generally work mostly the same way as Python. It is important to note 
             <td><code>5</code> (<code>x</code> of type <code>int</code>)</td>
           </tr>
           <tr>
-            <th scope="row">3072</th>
+            <th scope="row">1312</th>
             <td></td>
           </tr>
           <tr>
-            <th scope="row">1336</th>
+            <th scope="row">1344</th>
             <td></td>
           </tr>
           <tr>
-            <th scope="row">1368</th>
+            <th scope="row">1376</th>
             <td></td>
           </tr>
         </tbody>
@@ -315,7 +321,8 @@ In Unicode, the first bit tells us whether we use ASCII characters (which we wil
 <h2 id="L3-characters">Characters and Strings</h2>
 The above discussion helps us understand how characters and strings are stored and worked with in C.  Consider the following program,
 <pre><code class="language-C">#include &lt;stdio.h&gt
-int main(){
+int main()
+{
     char c = 'x';
     printf("%c %d", c, (int)c);
 
@@ -325,7 +332,8 @@ Notice that the program outputs <code>x 120</code>. This is because we can inter
 
 We can store strings by writing
 <pre><code class="language-C">#include &lt;stdio.h&gt
-int main(){
+int main()
+{
     char* s = "Hello, World!";
     return 0;
 }</code></pre>
@@ -454,7 +462,8 @@ where <code>s</code> is the address of the first character in the string (in thi
     Draw the corresponding memory table given the following program. Assume an integer takes up 4 bytes.
 
 <pre><code class="language-C">#include &lt;stdio.h&gt
-int main(){
+int main()
+{
     int a = 5;
     int b = 10;
     int* p_a = 0;
@@ -500,7 +509,9 @@ int main(){
 
 </div>
 </div>
-Note that in the above example, not every address was written down. In C, every address is a byte. We can use the <code>sizeof</code> operator, which gives the size of an object. For example, <code>sizeof(int)</code> gives the size of an int and <code>sizeof(a)</code> gives the size of the variable <code>a</code>. The output is represented in bits. We can print this to console using<code>printf("%ud", sizeof(int))</code>
+Note that in the above example, not every address was written down. In C, every address is a byte. We can use the <code>sizeof</code> operator, which gives the size of an object. For example, <code>sizeof(int)</code> gives the size of an int and <code>sizeof(a)</code> gives the size of the variable <code>a</code>. The output is represented in bits. We can print this to console using <code>printf("%ud", sizeof(int))</code>.<br><br>
+
+Depending on your system, you may get a warning in the above print statements. This is because <code>sizeof</code> returns a <code>size_t</code> type, that could either be an unsigned integer or an unsigned long integer (depending on your system). You may choose to use <code>%lu</code> or <code>%zu</code> instead.
 <h2 id="L4-strings">Strings</h2>
 Recall that each character will always be 1 byte. The reason this is important is if we recall strings can be defined using a <i>pointer,</i><br><br>
 <pre><code class="language-C">char *s = "xyz"</code></pre>
@@ -508,7 +519,7 @@ we get a memory table that looks like,<br><br>
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Locals Frame [main]</th>
+      <th scope="col">Memory</th>
       <th scope="col">Value</th>
     </tr>
   </thead>
@@ -539,8 +550,9 @@ A few key observations:
 <ul>
   <li>Each address can hold 1 byte and each character is 1 byte. Perfect!</li>
   <li>The null character <code>\0</code> signifies the end of the string, so that we know when to stop. This is important, because we don't store the length anywhere!</li>
+  <li>We are using double quotes here. Double quotes automatically include the null character at the end.</li>
   <li>The variable <code>s</code> gets stored elsewhere and is equal to the address of the first character.</li>
-  <li>We are specifying that the addresses are part of the main locals frame. This is important in the next subsection where we will be also working with the locals frame of a particular function.</li>
+  <li>The variable is placed somewhere in memory that is generally <i>not</i> the locals frame. However, most variables are typically stored in the main locals frame. This will be important in the next subsection where we will be also working with the locals frame of a particular function.</li>
 </ul>
 We can treat <code>s</code> as just any other variable! For example,<br><br>
 <pre><code class="language-C">printf("%c", *s);</code></pre>
@@ -693,7 +705,347 @@ print(id(a)) # prints the address
 and see that the memory addresses are different, so behind the scenes, Python is writing <code>2</code> in a new space in memory and then associating the variable <code>a</code> with this new address.
 <br><br>
 Because C gives us more freedom to work directly with the memory, we can do much more powerful things and implement more complex data structures, as we will see in the coming weeks.
+<h1 id="L5">L5: Arrays and Pointer Arithmetic</h1>
+<div class="card border-primary mb-3">
+  <div class="card-header">Note on Convention</div>
+  <div class="card-body text-primary">
+    <h5 class="card-title">Pointers</h5>
+    <p class="card-text">
+      In earlier lecture notes, I wrote pointers as
+    <pre><code class="language-C">int* p_a = &a;</code></pre>
+      to emphasize that the variable is <code>a</code> and the type is <code>int*</code>. However, it is standard practice (and what the original creators of C used) to write
+      <pre><code class="language-C">int *p_a = &a;</code></pre>
+      Functionally, there is no difference. This is primarily a stylistic choice. Remember that the variable in question is still <code>a</code>.
+    </p>
+  </div>
+</div>
+<h2 id="L5-swap">Swapping two integers</h2>
+<b>Problem:</b> Write a function to swap two integers.<br><br>
+
+Similar to the problem of changing the value of a variable, we need to pass in the address of two variables instead of the values. This tells the function where in the memory table to look in order to swap the two integers. We have,
+<pre><code class="language-C">#include &lt;stdio.h&gt
+void swap(int *p_a, int *p_b)
+{
+  int temp = *p_a; // Create a temp variable in the function's local frame
+  *p_a = *p_b;
+  *p_b = temp;
+}
+
+int main()
+{
+  int x = 7;
+  int y = 8;
+  swap(&x, &y);
+
+  return 0;
+}
+</code></pre>
+<h2 id="L5-pointer-arithmetic">Pointer Arithmetic</h2>
+Recall that strings can be stored using pointers. For example, the code<br><br>
+<pre><code class="language-C">char *str = "hello";
+printf("%c\n", str[1]);</code></pre>
+will print out <code>'e'</code>, as C will treat the variable <code>str</code> of type <code>char *</code> as an array. Behind the scenes, the code is performing pointer arithmetic. That is, the above is equivalent to:<br><br>
+<pre><code class="language-C">char *str = "hello";
+printf("%c\n", *(str + 1));</code></pre>
+When we have multiple oeprations, we perform what is in the parentheses first (similar to BEDMAS). Therefore, this code tells us to get the value of <code>str</code>, which is the address that holds the character <code>'h'</code>, then increase it by 1 byte (which is the address that holds the next character, <code>'e'</code>). Finally, the dereferencing operator gets the value stored at the address <code>str + 1</code>.<br><br>
+
+There is one subtlety here, which we will see in the next section.
+<h2 id="L5-arrays">Arrays</h2>
+An array is a block of memory containing a sequence of elements, of the same type. Arrays always have a pre-specified size. We can initialize an array using curly braces.<br><br>
+<pre><code class="language-C">int arr[5] = {1,2,3,4,5};</code></pre>
+This is unlike Python, where we do not need to specify a size, and arrays can dynamically change in size. If you are familiar with <code>numpy,</code> C arrays are much more similar to <code>numpy</code> arrays. We are allowed to retrieve and modify array elements,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main()
+{
+  int arr[5] = {1,2,3,4,5};
+  printf("%d\n", arr[2]); // prints 3
+  arr[2] = 6;
+
+  printf("%ud, %ud\n", sizeof(arr), sizeof(arr[0])) // prints 20, 4
+  printf("#of elements in arr is %d\n", sizeof(arr) / sizeof(arr[0]))
+}
+</code></pre>
+The first three lines in the main function will create the following memory table, where we are assuming integers take 32 bits:
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals frame [main]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1600</th>
+      <td><code>1</code> (<code>arr</code> of type <code>int</code>, size <code>5</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">1632</th>
+      <td><code>2</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1664</th>
+      <td><code>3</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1696</th>
+      <td><code>4</code></td>
+    </tr>
+    <tr>
+      <th scope="row">1728</th>
+      <td><code>5</code></td>
+    </tr>
+  </tbody>
+</table>
+The <code>sizeof</code> operator gives how much space the variable takes up, in bytes. This means that <code>sizeof(arr[0])</code> will give 4 bytes, since <code>arr[0]</code> is an integer and <code>sizeof(arr)</code> will give 20 bytes, since 20 = 4 x 5, where 5 is the number of elements.<br><br>
+
+When passing an array to a function, it gets converted to a pointer. For example, if we have the function<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+void set0(int *p_a)
+{
+  *p_a = 0; // p[0] = 0;
+  printf("%ud\n", sizeof(p_a)); // prints 8
+}
+int main()
+{
+printf("%ud", 3);
+  int arr[5] = {1,2,3,4,5};
+  printf("%d\n",arr[0]); // prints 1
+  set0(arr);
+  printf("%d\n",arr[0]); // prints 0
+}
+</code></pre>
+Because arrays get converted to pointers, calling <code>sizeof</code> inside the function gives us the length of the pointer, which is 8 bytes. This is why when writing functions that deal with arrays, we typically need to pass in another parameter so the function will know how long the array is.<br><br>
+
+Because arrays are so similar to pointers, we can treat them as pointers when performing operations. For example, <code>arr[2] = 6;</code> is the same as <code>*(arr + 2) = 6;</code><br><br>
+
+There is one slight caveat here to any eagle-eyed student! When we worked with strings, <code>str + 2</code> added 2 bytes to the pointer. Here however, <code>arr + 2</code> added 2 x 4 = 8 bytes to the pointer! Therefore, <i>pointer arithmetic is conscious of the type of the pointer.</i><br><br>
+
+Therefore, <code>*(arr+i)</code> and <code>arr[i]</code> will always be equivalent.
+<h2 id="L5-strings">Revisiting Strings</h2>
+We can initialize strings the same way we initialize arrays because of how similar they are. The following are equivalent:
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main()
+{
+  char arr1[4] = "uvw";
+  char arr2[4] = {'x', 'y', 'z', '\0'};
+  char arr3[3] = {'a', 'b', 'c'}; // Incorrect, will produce weird results
+  printf("%s\n", arr1); // uvw
+  printf("%s\n", arr2); // xyz
+  printf("%s\n", arr3); // something weird!
+}
+</code></pre>
+Some key points:
+<ol>
+  <li>The size of the array should be set to 1 more than the number of characters. This is because strings always end with the null character <code>\0</code>.</li>
+  <li>The null character is automatically included when we define a string by concatenating characters, i.e. like in the definition of <code>arr1</code>.</li>
+  <li>If we forget to include the null character when defining it explicitly as an array, i.e. for <code>arr3</code>, then the program doesn't know when to stop. When printing (and other operations), it will only stop once it reaches a null character. On my machine, the output was <code>abcuvw</code>.</li>
+</ol>
+Alternatively, we can define arrays (and strings) without specifying a size via:<br><br>
+<pre><code class="language-C">char arr[] = {'x', 'y', 'z', '\0'};</code></pre>
+The program will automatically determine how many entries this array has.<br><br>
+<h2 id="L5-arrays-in-functions">Arrays in Functions</h2>
+Initializing arrays inside functions is similar to initializing an integer inside a function, except we now allocate a block of memory. Here is incorrect code of how we can make an array.
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int *make_array_wrong()
+{
+  int arr[5] = {1, 2, 3, 4, 5};
+  return arr;
+}</code></pre>
+We must not access something like <code>arr[0]</code> outside the function. Accessing the actual address arr is not a problem, but <code>arr</code> is not anymore the address of anything in particular.<br><br>
+
+To properly do this, we need to allocate a block of memory on the heap (as opposed to on the stack).
+<ul>
+  <li>Heap: The memory table in general that's not tied to the locals frame</li>
+  <li>Stack: In the locals frame of the function</li>
+</ul>
+To do this, we can use the following notation:<br><br>
+<pre><code class="language-C">int *a = (int *)malloc(sizeof(int) * 12);</code></pre>
+where <code>a</code> is now a pointer to a block of memory of size <code>12 * sizeof(int)</code> bytes. This is enough space for 12 integers. Note that we need to cast the pointer to an integer pointer using <code>(int *)</code>, since <code>malloc</code> returns a void pointer (i.e. it just knows to create this much space in the memory table, but doesn't know what this space is used for). To create an array inside a function, we can use the following code,<br><br>
+<pre><code>#include &lt;stdio.h&gt
+#include &lt;stdlib.h&gt
+
+int *make_array_right()
+{
+    int *a = (int *)malloc(5*sizeof(int));
+    a[0] = 1;
+    a[1] = 2;
+    a[2] = 3;
+    a[3] = 4;
+    a[4] = 5;
+
+    return a;
+}
+int main()
+{
+  int *a_good = make_array_right();
+  printf("%d" , a_good[0]);
+
+  free(a_good);
+}
+</code></pre>
+To use <code>malloc()</code> we need to use the <code>stdlib.h</code> library (standard library). In the above code, <code>a</code> is a local variable, but it refers to a place in memory that doesn't go away, so we can still refer to it outside the function.<br><br>
+
+It is also important to free the memory when we no longer need the variable. This is because not using <code>free()</code> could result in a memory leak, i.e. blocks of memory are no longer needed but the computer still thinks are in use. Once the memory block is freed accessing it is undefined behavior.
 <br><br><br><br>
+<h1 id="L6">L6: More on Strings and Double Pointers</h1>
+<h2 id="L6-Changing-Strings">Editing Strings</h2>
+Recall that we can define strings in two ways. Both ways are similar, but there are key differences that are very important. Consider,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main()
+{
+  // Defining string using address of character
+  char *str = "abc";
+  // not allowed to go str[1] = 'x';
+  printf("%c\n", str[1]); // allowed to print str[1]
+  printf("%zu\n", sizeof(str)); // 8 (since pointers are long ints)
+
+  // Defining string using array
+  char str2[] = "abc"; // alternatively char str2[] = {'a','b','c','\0'};
+  str2[0] = 'x'; // fine
+  printf("%s\n", str2); // xbc
+  printf("%zu\n", sizeof(str2)); // 4 ({'a','b','c','\0'} takes up 4 bytes)
+}</code></pre>
+The main difference is that when we are defining the string using the first method, the string is placed somewhere in memory that is generally not the locals frame and thus we are not allowed to change it, only read it. But defining it as an array does place it in the main locals frame, and thus we can change it like a regular array.<br><br>
+
+Because one is an array and the other is an address, their sizes are different as well. We can also define strings a third way, using <code>malloc</code>, which was briefly touched upon last lecture. We can have,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main()
+{
+  char *str = (char *)malloc(3*sizeof(char)); // same as malloc(3)
+  str3[0] = 'b';
+  str3[1] = '\0';
+  printf("%s\n", str3); // b
+  free(str); // frees memory
+}</code></pre>
+which will produce the following memory table,
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Locals Frame [main]</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">32</th>
+        <td><code>3200</code> (<code>str5</code> of type <code>int *</code>)</td>
+      </tr>
+      <tr>
+        <th scope="row">64</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope="row">96</th>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <tbody>
+      <tr>
+        <th scope="row">3200</th>
+        <td><code>'b''</code></td>
+      </tr>
+      <tr>
+        <th scope="row">3201</th>
+        <td><code>'\0'</code></td>
+      </tr>
+      <tr>
+        <th scope="row">3202</th>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  Remember that it is always best practice to free variables once they are no longer needed.
+<h2 id="L6-String-Functions">String in Functions</h2>
+Similar to arrays, we cannot create strings inside a function and return the address of the local variable. Consider the following code,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+char *make_string_wrong(int sz)
+{
+  char str[sz];
+  return str;
+}
+int main()
+{
+  char *str = make_string_wrong(3);
+  str[0]; // not allowed , might crash
+  printf("%ud\n", str); // fine, prints the address where str used to be 
+}</code></pre>
+Instead, we need to use <code>malloc</code> again. The following code works,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+char *make_string_right(int sz)
+{
+  char *str = (char *)malloc(sz*sizeof(char));
+  return str;
+}
+int main()
+{
+  char *str = make_string_right(3);
+  str[0]; // allowed
+  printf("%lu\n", (long int)str); // 94182356746912 when I ran it
+}</code></pre>
+<h2 id="L6-Double-Pointers">Double Pointers</h2>
+Consider the following code,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+int main()
+{
+  int *a = 0;
+  int **p_a = &a;
+
+  &a; // 3032
+  *p_a // 0;
+  *(&a) // a;
+  &(0) // makes no sense
+}</code></pre>
+This looks like a mess, but we can look at the memory table.
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Locals Frame [main]</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">3032</th>
+      <td><code>0</code> (<code>a</code> of type <code>int *</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">3064</th>
+      <td>(space used by above)</td>
+    </tr>
+    <tr>
+      <th scope="row">3092</th>
+      <td><code>3032</code> (<code>p_a</code> of type <code>int **</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">3124</th>
+      <td>(space used by above)</td>
+    </tr>
+  </tbody>
+</table>
+and we can work through the above computations:
+<ol>
+  <li><code>&a</code> gives 3032, since that is the address of where <code>a</code> lives</li>
+  <li><code>*p_a</code> gives 0, since it takes the value of <code>p_a</code> (which is 3032), and it looks at which value lives at that address, which happens to be 0.</li>
+  <li><code>*(&a)</code> will always give <code>a</code> since it first determines the address of <code>a</code> and then the dereference operator tells the program to go to the value stored at that address, which is <code>a</code>.</li>
+  <li><code>&(0)</code> makes no sense since we cannot take the address of a value that is not a variable.</li>
+  </ol>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br>
 </div>
     </div>
   </body>
