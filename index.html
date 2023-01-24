@@ -1032,19 +1032,120 @@ and we can work through the above computations:
   <li><code>&(0)</code> makes no sense since we cannot take the address of a value that is not a variable.</li>
   </ol>
 
+<h1 id="L7-Strings">L7: More Memory and String Operations</h1>
+<h2 id="L7-initializing-pointers">Initializing Pointers</h2>
+Consider the following code, which initializes a pointer in three different ways:<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+#include &lt;stdlib.h&gt
 
+int main()
+{
+  int *p_a = 0; // p_a is an address of an integer
+                // 0 is not a valid address 
+  printf("%d\n", *p_a); // error
 
+  // METHOD 1: Use Malloc
+  p_a = (int *)malloc(sizeof(int));
+  printf("%d\n", *p_a); // not error, but value can be anything
+  *p_a = 42; // p_a[0] = 42
+  printf("%d\n", *p_a); // 42
+  free(p_a) // Need to free, see comments!
 
+  // METHOD 2: Assign it using the address
+  int b = 43;
+  p_a = &b;
+  printf("%d\n", *p_a); // 43
 
+  // METHOD 3: Using arrays
+  int c[] = {5, 8, 10};
+  p_a = c;
+  p_a[0]; // 5
 
+  p_a++; // p_a = p_a + 1
+  p_a[0]; // 8
+}</code></pre>
+Some comments about the above code:
+<ol>
+  <li>Initializing a pointer like <code>int *p_a = 0;</code> is a common thing to do, but we can't do anything since <code>0</code> is not a valid address</li>
+  <li>Instead, we can use <code>malloc</code> to free up space in memory and store that address in <code>p_a</code></li>
+  <li>If we later store a different address in <code>p_a</code> (without freeing first), then the address of the memory allocated by <code>malloc</code> will be lost, which can lead to memory leaks.</li>
+  <li>To prevent memory leaks, we need to free the memory before reassigning it. If <code>free(p_a)</code> at the very end of the program, it will cause a crash because it will attempt to free the memory at the address <code>&b</code> instead, which wasn't created using <code>malloc</code>.</li>
+  <li>If we tried to run <code>p_a++;</code> after the <code>malloc</code> instead, it will crash, since we only allocated enough memory for a single integer.</li>
+</ol>
+We can initialize double pointers the same way,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+#include &lt;stdlib.h&gt
 
+int main()
+{
+  int **p_p_a = 0;
+  // accessing *p_p_a here gives an error
+  p_p_a = (int **)malloc(sizeof(int *));
+  // p_p_a is valid address, so we can access *p_p_a;
+  *p_p_a = (int *)malloc(sizeof(int));
+  **p_p_a = 58; 
+}</code></pre>
+<h2 id="L7-strings">String Operations</h2>
+Consider the following function to print an array:<br><br>
+<pre><code class="language-C">void print_array(int *arr, int sz)
+{
+  int i;
+  for (i = 0; i &lt; sz; i++)
+  {
+    printf("%d ", arr[i]);
+  }
+  printf("\n");
+}</code></pre>
+We can write something similar to print a string manually,
+<pre><code class="language-C">void manual_print_str(char *str)
+{
+  int i = 0;
+  while(str[i] != '\0'){
+    printf("%c", str[i]);
+    i++;
+  }
+  printf("\n");
 
-
-
-
-
-
-
+  /*
+  // Also Valid
+  for(i = 0; str[i] != '\0', i++){
+    printf("%c", str[i]);
+  }
+  */
+}
+</code></pre>
+The key difference is that we don't need to pass the size of the string. We can tell when to stop when we reach the null character <code>'\0'</code>. An alternative way is via pointer arithmetic,<br><br>
+<pre><code class="language-C">void print_str(char *str)
+{
+  while(*str != '\0'){
+  // while(*str) works too
+    printf("%c", *str);
+    str++;
+  }
+  printf("\n");
+}</code></pre>
+We can simplify our code by saying<code>while(*str)</code> instead, which works since <code>*str</code> evaluates to <code>true</code> whenever it is not null We can also determine the length of a string in similar ways,<pre><code class="language-C">int manual_strlen(char *str)
+{
+  int i = 0;
+  while(str[i] != '\0'){
+    i++;
+  }
+  return i;
+}</code></pre>
+or if you want to show off,<br><br>
+<pre><code class="language-C">int strlen(char *str)
+{
+  int length = 0;
+  while(*str++){
+    length++;
+  }
+}</code></pre>
+Here, <code>*str++</code> means first access <code>*str</code> then increment <str>str</str>. Here is a list of common shortcuts:
+<ol>
+  <li><code>str++</code> puts <code>str + 1</code> into <code>str</code>, the value of <code>*str</code> is <code>str[0]</code></li>
+  <li><code>*++a</code> means first increment <code>a</code> then access <code>*a</code></li>
+  <li><code>a++ = a + 1</code> is undefined behaviour</li>
+</ol>
 <br><br><br><br><br>
 </div>
     </div>
