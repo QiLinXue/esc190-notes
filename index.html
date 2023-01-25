@@ -288,8 +288,23 @@ It is less obvious how to go from decimal to binary. Suppose we want to convert 
     </ol>
     which gives 
     \[11001\]
-    A Python implementation is given below
-    <iframe src="https://trinket.io/embed/python3/7b7fd3c0aa" width="100%" height="356" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>
+    A Python implementation is given below:
+<pre><code class="language-python">def get_decimal_digits(d):
+  digits = []
+  while d != 0:
+    digits = [(d % 10)] + digits
+    d //= 10
+  return digits
+
+def get_binary_digits(d):
+  digits = []
+  while d != 0:
+    digits = [(d % 2)] + digits
+    d //= 2
+  return digits
+
+print(get_decimal_digits(521))
+print(get_binary_digits(25))</code></pre>
     <li>Left-to-right:</li>
     <ul>
 
@@ -1133,18 +1148,122 @@ We can simplify our code by saying<code>while(*str)</code> instead, which works 
   return i;
 }</code></pre>
 or if you want to show off,<br><br>
-<pre><code class="language-C">int strlen(char *str)
+<pre><code class="language-C">int manual_strlen2(char *str)
 {
   int length = 0;
   while(*str++){
     length++;
   }
+  return length;
 }</code></pre>
 Here, <code>*str++</code> means first access <code>*str</code> then increment <str>str</str>. Here is a list of common shortcuts:
 <ol>
   <li><code>str++</code> puts <code>str + 1</code> into <code>str</code>, the value of <code>*str</code> is <code>str[0]</code></li>
   <li><code>*++a</code> means first increment <code>a</code> then access <code>*a</code></li>
   <li><code>a++ = a + 1</code> is undefined behaviour</li>
+</ol>
+<h1 id="L8">L8: More Strings and Double Pointers</h1>
+<h2 id="L8-strcpy">Copying Strings</h2>
+Suppose we wish to copy a string, we can use the following code:<br><br>
+<pre><code class="language-C">char *my_strcpy(char *dest, char *src)
+{
+  int i = 0;
+  while(src[i] != '\0'){
+    dest[i] = src[i];
+    i++;
+  }
+
+  /* alternatively 
+  for (int i = 0; src[i] != '\0'; i++){
+    dest[i] = src[i];
+  }
+  */
+
+  // At this point dest is not a valid string -- not null-terminated
+  dest[i] = '\0';
+  return dest;
+}</code></pre>
+This copies the string <code>src</code> to the string <code>dest</code>. Assume that there is enough space in <code>dest</code> to store <code>src</code> + the trailing NULL. Alternatively, we can perform a <i>do while loop</i>, that is:<br><br>
+<pre><code class="language-C">char *my_strcpy(char *dest, char *src)
+{
+  int i = 0;
+  do{
+    dest[i] = src[i];
+    i++;
+  } while(src[i - 1] != '\0');
+
+  return dest;
+}</code></pre>
+Here, the code inside the <code>do</code> is always run, and then the condition is checked. If the condition is false, the loop is exited. It is important to point out that this doesn't need an additional line that adds the null character: it is done automatically (since it copies before checking the condition). We can also show off by doing it the fancy way,<br><br>
+<pre><code class="language-C">char *my_strcpy_fancy(char *dest, char *src)
+{
+  char *old_dest = dest;
+  while(*dest++ = *src++);
+  return old_dest;
+}</code></pre>
+This works because <code>*dest++ = *src++</code> first copies <code>*src</code> to <code>*dest</code> then increments both pointers. The while loop terminates when <code>*dest = *src</code>, which is equal to <code>*src</code> is null.
+
+These programs can be called in the main function by defining an empty string that is long enough, i.e. <br><br>
+<pre><code class="language-C">int main()
+{
+  char str1[100];
+  char str2[] = "Hello";
+  my_strcpy(str1, str2);
+  printf("%s\n", str1);
+}</code></pre>
+This is usually not good practice because it is unreadable and show-off like.
+<h2 id="L8-reading-input">Reading Input</h2>
+To read input from the keyboard, we can use <code>scanf.</code> This works similar to <code>printf</code> where you give an input from the keyboard, and you have a format specifier to specify how to interpret the input. The second parameter is where the address in which the input is stored. Here are some common ways of receiving input:<br><br>
+<pre><code class="language-C">int main()
+{
+    int a;
+    scanf("%d", &a);
+    printf("You entered: %d\n", a);
+
+
+    float f;
+    scanf("%f", &f);
+    printf("You entered: %f\n", f);
+
+    char s[100];
+    scanf("%s", s);
+    printf("You entered: %s\n", s);
+
+    char *p_a = (char *)malloc(100);
+    scanf("%s", p_a);
+    printf("You entered: %s\n", p_a);
+
+    int *p_int = (int *)malloc(sizeof(int));
+    scanf("%d", p_int);
+    printf("You entered: %d\n", *p_int);
+}</code></pre>
+<h2 id="L8-double-pointers">Double Pointers</h2>
+Oftentimes, we need a double pointer when reading from input. Suppose we wish to make a function that constructs an array of integers from an input. We need a double pointer because we can describe an array using its address, and we need the address to this address such that we can actually modify it. We can implement it the following way,<br><br>
+<pre><code class="language-C">int *get_int_arr_from_input(int **p_arr, int *p_n)
+{
+  printf("Number of elements that are coming: ");
+  scanf("%d", p_n);
+  *p_arr = (int *)malloc(*p_n * sizeof(int));
+  for (int i = 0; i < *p_n; i++){
+    scanf("%d", &(*p_arr)[i]);
+  }
+}
+
+int main()
+{
+  int *arr;
+  int n;
+  get_int_arr_from_input(&arr, &n);
+  for (int i = 0; i < n; i++){
+    printf("%d ", arr[i]);
+  }
+
+  free(arr);
+}</code></pre>
+Here, the double pointer is necessary. Some key things to note:
+<ol>
+  <li>Note that <code>&(*p_arr)[i]</code> is equivalent to the expression <code>*p_arr + i</code>. We can interpret this as: <code>*p_arr</code> is the address of the actual array, then we want to access element <code>i</code> and then get its address.</li>
+  <li>The reason why we pass in <code>int *p_n</code> as well is so that we can write down the length of this array to some variable stored outside of the function's local frame.</li>
 </ol>
 <br><br><br><br><br>
 </div>
