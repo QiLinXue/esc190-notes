@@ -926,11 +926,11 @@ Because one is an array and the other is an address, their sizes are different a
 <pre><code class="language-C">#include &lt;stdio.h&gt
 int main()
 {
-  char *str = (char *)malloc(3*sizeof(char)); // same as malloc(3)
+  char *str3 = (char *)malloc(3*sizeof(char)); // same as malloc(3)
   str3[0] = 'b';
   str3[1] = '\0';
   printf("%s\n", str3); // b
-  free(str); // frees memory
+  free(str3); // frees memory
 }</code></pre>
 which will produce the following memory table,
 <table class="table">
@@ -943,7 +943,7 @@ which will produce the following memory table,
     <tbody>
       <tr>
         <th scope="row">32</th>
-        <td><code>3200</code> (<code>str5</code> of type <code>int *</code>)</td>
+        <td><code>3200</code> (<code>str3</code> of type <code>int *</code>)</td>
       </tr>
       <tr>
         <th scope="row">64</th>
@@ -1265,6 +1265,163 @@ Here, the double pointer is necessary. Some key things to note:
   <li>Note that <code>&(*p_arr)[i]</code> is equivalent to the expression <code>*p_arr + i</code>. We can interpret this as: <code>*p_arr</code> is the address of the actual array, then we want to access element <code>i</code> and then get its address.</li>
   <li>The reason why we pass in <code>int *p_n</code> as well is so that we can write down the length of this array to some variable stored outside of the function's local frame.</li>
 </ol>
+<h1 id = "L9">L9: Structures</h1>
+<h2 id="L9-example">Basic Example</h2>
+We can create our own data structures in C. As an illustrative example, let us create a structure that can represent UofT students. We want to represent:
+<ol>
+  <li>
+    <code>char st_number_str[11]</code> This is the student number (10 digits + NULL). Note that this is technically a number but we represent it this way because we don't need to do math operations on it.
+    <code>int faculty_num</code> For our purposes, this will be something like <code>0</code> for FASE, <code>1</code> for Arts & Science, <code>2</code> for Kinesiology, etc. 
+  </li>
+</ol>
+We can create a structure, initialize it, and create a function that prints it out with the following code,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+struct uoft_student{
+  char st_number_str[11];
+  int faculty_num;
+};
+
+void print_uoft_student(struct uoft_student s)
+{
+  printf("student number: %s\n", s.st_number_str);
+  printf("faculty number: %d\n", s.faculty_num);
+}
+
+int main()
+{
+  struct uoft_student s;
+  s.faculty_num = 0;
+  // s.st_number_str = "1234567890"; // error
+  strcpy(s.st_number_str, "1234567890");
+
+  print_uoft_student(s);
+}</code></pre>
+Note that in order to initialize a string, we can't use the notation <code>s.st_number_str = "1234567890"</code> but instead use the <code>strcpy</code> function from <code>string.h</code>.<br><br>
+
+How does this look like in memory? We get the following memory table,
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Address</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">448</th>
+      <td><code>"abc"</code> (<code>st_number_str</code>, part of <code>s1</code>)</td>
+    </tr>
+    <tr>
+      <th scope="row">480</th>
+      <td><code>0</code> (<code>faculty_num</code>, part of <code>s1</code>)</td>
+    </tr>
+  </tbody>
+</table>
+When we call the function <code>print_uoft_student</code>, we pass in the entire structure <code>s</code> as a parameter. This means the function then creates a copy of <code>s</code> and stores it in the local frame of the function.
+<h2 id="L9-new-types">New Types</h2>
+In C, we can use <code>typedef</code> to define new custom types. This is useful if we have a boolean we definitely know is true or false but we're implementing it with an integer. Then we can write something like<br><br>
+<pre><code class="language-C">typedef int BOOL;</code></pre>
+which allows us to write <code>BOOL t=0;</code> And for our earlier example with UofT students, we can write<br><br>
+<pre><code class="language-C">typedef struct uoft_student uoft_student;</code></pre>
+So instead of writing <code>struct uoft_student</code> in the future, we only need to write <code>uoft_student</code>. An alternative way of writing this is built into the structure definition, i.e.<br><br>
+<pre><code class="language-C">typedef struct uoft_student{
+  char st_number_str[11];
+  int faculty_num;
+} uoft_student;</code></pre>
+This is what we'll use from now on for this lecture, but there are some cases in the future where we have to be more careful. This doesn't change how the code works, but it just helps with reading the code. For example, the code we had earlier becomes slightly more readable, i.e.<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+typedef struct uoft_student{
+  char st_number_str[11];
+  int faculty_num;
+} uoft_student;
+
+void print_uoft_student(uoft_student s)
+{
+  printf("student number: %s\n", s.st_number_str);
+  printf("faculty number: %d\n", s.faculty_num);
+}
+
+int main()
+{
+  uoft_student s;
+  s.faculty_num = 0;
+  // s.st_number_str `= "1234567890"; // error
+  strcpy(s.st_number_str, "1234567890");
+
+  print_uoft_student(s);
+}
+</code></pre>
+<h2 id = "L9-struct-functions">Functions on Structs</h2>
+Suppose we wish to modify a struct inside a function. As you may have guessed, we can't just pass in the struct, as that creates a copy! Instead, we need to pass in a pointer to the struct. For example, we can write a function that changes the faculty number of a student to 1,<br><br>
+<pre><code class="language-C">void drop_to_artsci(uoft_student *p_s)
+{
+  (*p_s).faculty_num = 1;
+}
+</code></pre>
+and in the main file, we can call <code>drop_to_artsci(&s)</code>. There is another notational shortcut! Instead of writing something like <code>(*a).b</code> we can write down the equivalent statement <code>a->b</code>. The above function can then be rewritten in a more suggestive manner,<br><br>
+<pre><code class="language-C">void drop_to_artsci(uoft_student *p_s)
+{
+  p_s->faculty_num = 1;
+}
+</code></pre>
+The way people usually think about it is if we pass in a pointer to the structure, we typically want to use the arrow and we pass in just the structure, we don't want to use it (or else it doesn't make sense!).
+<h2 id="L9-struct-advanced">Pointers in Structures</h2>
+Consider the following structure,<br><br>
+<pre><code class="language-C">typedef struct waterloo_student{
+  char *st_number_str;
+} waterlooser;
+</code></pre>
+and we wish to change the student id. There are two ways we can try to do this, with one incorrect and the other correct. They are:<br><br>
+<pre><code class="language-C">void change_w_id_bad(waterlooser w)
+{
+  w.st_number_str = (char *)malloc(5 * sizeof(char));
+  strcpy(w.st_number_str, "666");
+}
+
+void change_w_id_good(waterlooser w)
+{
+  strcpy(w.st_number_str, "666");
+}
+</code></pre>
+The reason why the first method is incorrect is because <code>w.st_number_str</code> is a pointer to where the string is stored. When it passes through the function, it creates a copy of the pointer, but we still have the information of where in memory this string is stored. If we try to (incorrectly) allocate space, then <code>w.st_number_str</code> will now point to somewhere else in memory that is big enough to store <code>"666</code>, but the original address of <code>w.st_number_str</code> will stay the same.<br><br>
+
+If we directly use <code>strcpy</code>, then it will copy the string <code>"666"</code> to the destination <code>w.st_number_str</code> whose value is the address in which the original string is stored.
+<h2 id="L9-Creating-Structs">Creating Structs</h2>
+Suppose we wish to create a waterlooser with a function. To do so, we need a pointer to a pointer,<br><br>
+<pre><code class="language-C">typedef struct waterloo_student{
+  char *st_number_str;
+} waterlooser;
+
+void create_waterlooser(waterlooser **p_p_w)
+{
+  *p_p_w = (waterlooser *)malloc(sizeof(waterlooser));
+  (*p_p_w)->st_number_str = (char *)malloc(5 * sizeof(char));
+  // (*(*p_p_w)).st_number_str = (char *)malloc(11 * sizeof(char)); // same as above
+}
+
+int main()
+{
+  waterlooser *w;
+  create_waterlooser(&w);
+};
+</code></pre>
+Inside the <code>create_waterlooser</code> function, we need to allocate enough space to store 1 waterlooser, and then allocate enough space to store their student number. In the first line, we wish to obtain the address of the memory block that is big enough to store 1 waterlooser, and set that as the address of the waterlooser. After that, we can go to that address, and at that address write the address of a student number string, which we can do via malloc. Remember that <code>st_number_str</code> is a pointer itself!<br><br>
+
+Note that in the above, we are modifying the address of <code>st_number_str</code>! In the earlier examples (where we didn't use a double pointer), we could only change the value at this address using <code>strcpy</code> but we can't change where this points to. Using a double pointer allows us greater degrees of freedom.<br><br>
+
+In the main function, we originally have a pointer to the waterlooser, but it is not a valid address. We can pass in the address of this pointer to our <code>create_waterlooser</code> function, which then makes it a valid address to a waterlooser.<br><br>
+
+As always, we need to free the memory we allocated once it is no longer needed. This can be done in a function that is typically called <code>destroy</code>. There are a few subtleties though! The below function works,<br><br>
+<pre><code class="language-C">void destroy_waterlooser(waterlooser *p_w)
+{
+  free(p_w -> st_number_str);
+  free(p_w);
+}
+</code></pre>
+Note that the order of these lines matter! If we try to free <code>p_w</code> first, we can do that, but we are no longer able to access <code>p_w -> st_number_str</code>.
 <br><br><br><br><br>
 </div>
     </div>
