@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YCY17GV3DB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YCY17GV3DB');
+</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <title>ESC190 Lecture Notes</title>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous"> -->
+
+    <!-- Bootstrap Style -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+
+    <!-- TOC CSS -->
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/bootstrap-toc.css">
+
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/assets/screen.css" media="screen" charset="utf-8">
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://afeld.github.io/bootstrap-toc/bootstrap-toc.js"></script>
+      
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+<script type="text/javascript">
+  (function (i, s, o, g, r, a, m) {
+    i["GoogleAnalyticsObject"] = r;
+    (i[r] =
+      i[r] ||
+      function () {
+        (i[r].q = i[r].q || []).push(arguments);
+      }),
+      (i[r].l = 1 * new Date());
+    (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m);
+  })(
+    window,
+    document,
+    "script",
+    "//www.google-analytics.com/analytics.js",
+    "ga"
+  );
+
+  ga("create", "UA-19048260-11", "auto");
+  ga("send", "pageview");
+
+  hljs.highlightAll();
+</script>
+</head>
+<body data-bs-spy="scroll" data-target="#toc">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+      <div class="col-sm-9">
+
+
+<h1 id="-esc190-lecture-notes">ESC190 Lecture Notes: Part 2<br> Data Structures and Basic Algorithms</h1>
+    <p>See all lecture notes <a href="../">here</a>.</p>
+    </p>
+
+<h1 id = "L11">L11: Sorting</h1>
+<h2 id="L11-qsort">qsort</h2>
+C has a built-in function called qsort that can be used to sort an array of elements. The function takes in 4 arguments:
+<ol>
+    <li>The array to be sorted</li>
+    <li>The number of elements in the array</li>
+    <li>The size of each element in the array</li>
+    <li>A function that compares two elements in the array. It should return</li>
+    <ul>
+        <li>A negative number if the first element is smaller than the second element</li>
+        <li>0 if the two elements are equal</li>
+        <li>A positive number if the first element is larger than the second element</li>
+    </ul>
+</ol>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+    
+int compare_ints(const void *p_a, const void *p_b)
+{
+  int *p_a_i = (int *)p_a;
+  int *p_b_i = (int *)p_b;
+  return *p_a_i - *p_b_i;
+}
+    
+int main()
+{
+  int arr[] = {6, 5, 10, 2};
+  qsort(arr, 4, sizeof(int), compare_ints);
+}
+</code></pre>
+The reason the compare function takes in void pointers is because qsort is a generic function that can be used to sort any type of data. The function then casts the void pointers to the correct type and compares the two elements. This allows us to be more creative. Suppose we have our own structure to represent students, and we wish to sort them by their age. If two students have the same age then we wish to sort them by their name. We can do this by writing a compare function that compares the ages first and then compares the names if the ages are equal. We have,
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+typedef struct student1{
+  char name[20];
+  int age;
+} student1;
+
+int compare_student1s(const void *p_a, const void *p_b)
+{
+  // Want to sort student1's by name
+  // If students have the same age, sort by name
+
+  student1 *p_a_s = (student1 *)p_a;
+  student1 *p_b_s = (student1 *)p_b;
+  int age_diff = p_a_s->age - p_b_s->age;
+  if(age_diff != 0)
+  {
+    return age_diff;
+  }else{
+    return strcmp(p_a_s->name, p_b_s->name);
+  }
+}
+
+int main()
+{
+  student1 s1_arr[] = {{"John", 20}, {"Jill", 21}, {"Jack", 21}};
+
+  qsort(s1_arr, 3, sizeof(student1), compare_student1s);
+
+  for (int i = 0; i < 3; i++)
+    printf("%s %d\n", s1_arr[i].name, s1_arr[i].age);
+}
+</code></pre>
+Note that:
+<ul>
+    <li>We can use curly braces to initialize a struct</li>
+    <li>The <code>strcmp</code> function compares two strings and returns a negative number if the first string is smaller than the second string, 0 if the two strings are equal, and a positive number if the first string is larger than the second string</li>
+</ul>
+
+<h2 id="L11-reading-files">Reading Files</h2>
+Quick tip: When copying a file, download it instead of copying and pasting. When copying, you may accidentally ruin the formatting of the file.<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+int main()
+{
+  FILE *fp = fopen("cities.txt", "r");
+  char line[200];
+  fgets(line, 200, fp);
+  line[strlen(line) - 1] = '\0';
+  int num_items = atoi(line);
+
+  return 0;
+}
+</code></pre>
+The code works via the following:
+<ol>
+    <li>Within <code>main</code>, a file pointer <code>fp</code> is created and is assigned the result of opening the file <code>cities.txt</code> in read mode. If the file doesn't exist, <code>fopen</code> returns <code>NULL</code>.</li>
+    <li>A character array <code>line</code> with a maximum size of 200 characters is declared.</li>
+    <li>The function <code>fgets</code> is called, which reads a line of text from the file pointed to by <code>fp</code> and stores it in the <code>line</code> array. The maximum number of characters to be read is specified as 200, the second argument to <code>fgets</code>.</li>
+    <li>The last character of <code>line</code>, which is the newline character, is replaced with a null terminator (<code>'\0'</code>) to end the string.</li>
+    <li>The function <code>atoi</code> is called with <code>line</code> as its argument, which converts the string representation of a number to its integer value. This is <code>93827</code> for the project, the total number of cities.</li>
+  </ol>
+Alternatively, we can use <code>fgets</code> to read the entire file line by line. This is useful if we want to read the file line by line and do something with each line.
+<h2 id="L11-bubble-sort">Bubble Sort</h2>
+Bubble sort is a simple sorting technique that repeatedly steps through the list to be sorted, compares each pair of adjacent items and swaps them if they are in the wrong order. The pass through the list is repeated until no swaps are needed, which indicates that the list is sorted. The algorithm gets its name from the way smaller elements "bubble" to the top of the list. The pseudocode is given by (from Wikipedia),<br><br>
+<pre>
+function bubbleSort(L)
+    n = length(L)
+    repeat
+        swapped = false
+        for i=1 to n-1 inclusive do
+            /* if this pair is out of order */
+            if A[i-1] > A[i] then
+                /* swap them and remember something changed */
+                swap(A[i-1], A[i])
+                swapped = true
+            end if
+        end for
+    until not swapped
+end function
+</pre>
+In C, it can be implemented as,<br><br>
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+void swap(void *a, void *b, int item_size)
+{
+  char buffer[item_size];
+  memcpy(buffer, a, item_size);
+  memcpy(a, b, item_size);
+  memcpy(b, buffer, item_size);
+}
+
+void bubble_sort(void *arr, int num_items, int item_size,
+                 int (*compare)(const void *, const void *))
+{
+  int i, j;
+  for (i = 0; i < num_items - 1; i++)
+  {
+    for (j = 0; j < num_items - i - 1; j++)
+    {
+      char *a = (char *)arr + j * item_size;
+      char *b = (char *)arr + (j + 1) * item_size;
+      if (compare(a, b) > 0)
+      {
+        swap(a, b, item_size);
+      }
+    }
+  }
+}
+
+int compare_int(const void *p_a, const void *p_b) {
+  const int *x = (const int *)p_a;
+  const int *y = (const int *)p_b;
+  return *x - *y;
+}
+
+int main() {
+  int arr[] = {64, 34, 25, 12, 22, 11, 90};
+  int num_items = sizeof(arr) / sizeof(arr[0]);
+  bubble_sort(arr, num_items, sizeof(int), compare_int);
+
+  for (int i = 0; i < num_items; i++)
+    printf("%d ", arr[i]);
+
+  return 0;
+}
+</code></pre>
+Here are some comments about the signature of the <code>bubble_sort</code> function:
+<ul>
+    <li><code>void *arr</code>: This is a pointer to the array to be sorted. The data type of the array is not specified, so the function can be used with arrays of any data type.
+    </li>
+    <li><code>int (*compare)(const void *, const void *)</code> is a pointer to a comparison function. The comparison function takes two pointers to void as arguments and returns an integer less than, equal to, or greater than zero, depending on the result of the comparison. This allows the function to be used with arrays of any data type and to sort the array in any order.</li>
+</ul>
+Note that when we swap two elements in the array, we need to use the <code>memcpy</code> function to copy the data from one element to another. This is because the <code>swap</code> function takes pointers to void as arguments, so we don't know the data type of the elements in the array.<br><br>The <code>memcpy</code> function takes three arguments: the destination, the source, and the number of bytes to copy. The destination and source are both pointers to void, so we can use the <code>swap</code> function with arrays of any data type.
+<div class="card">
+  <h3 class="card-header">Exercise</h5>
+  <div class="card-body">
+    Consider the above code. It is actually inefficient and not the most ideal implementation of bubble sort. Why? (Hint: Compare this to the pseudocode)
+<br><br>
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#L3Example" role="button" aria-expanded="false" aria-controls="L3Example">
+    Show Solution
+  </a>
+</p>
+<div class="collapse" id="L3Example">
+  <div class="card card-body">
+    There is no stop condition. If the array is somehow fully sorted halfway into the program, it will still run to the very end (even if you pass in an already sorted array!)
+  </div>
+</div>
+
+</div>
+</div>
+<br><br><br><br><br>
+</div>
+    </div>
+  </body>
+</html>
