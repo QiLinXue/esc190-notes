@@ -187,7 +187,10 @@ The code works via the following:
     <li>The function <code>atoi</code> is called with <code>line</code> as its argument, which converts the string representation of a number to its integer value. This is <code>93827</code> for the project, the total number of cities.</li>
   </ol>
 Alternatively, we can use <code>fgets</code> to read the entire file line by line. This is useful if we want to read the file line by line and do something with each line.
-<h2 id="L11-bubble-sort">Bubble Sort</h2>
+
+<h1 id="L12-bubble-sort-again">L12: Bubble Sort</h1>
+Bubble sort was gone over very quickly last lecture, so this lecture will go over it in more detail.
+<h2 id="L12-bubble-sort">Bubble Sort</h2>
 Bubble sort is a simple sorting technique that repeatedly steps through the list to be sorted, compares each pair of adjacent items and swaps them if they are in the wrong order. The pass through the list is repeated until no swaps are needed, which indicates that the list is sorted. The algorithm gets its name from the way smaller elements "bubble" to the top of the list. The pseudocode is given by (from Wikipedia),<br><br>
 <pre>
 function bubbleSort(L)
@@ -205,44 +208,77 @@ function bubbleSort(L)
     until not swapped
 end function
 </pre>
+<div class="card">
+  <h3 class="card-header">Exercise</h5>
+  <div class="card-body">
+    Consider the below sequence. Manually apply bubble sort:
+    <pre>
+5, 2, 10, 56, 15
+    </pre>
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#L3Example" role="button" aria-expanded="false" aria-controls="L3Example">
+    Show Solution
+  </a>
+</p>
+<div class="collapse" id="L3Example">
+  <div class="card card-body">
+    Each line represents a different step:
+<pre>
+5, 2, 10, 56, 8
+2, 5, 10, 56, 8 // 2 and 5 swapped
+2, 5, 10, 56, 8 // 5 and 10 in order
+2, 5, 10, 56, 8 // 10 and 56 in order
+2, 5, 10, 8, 56 // 56 and 8 swapped
+// Go back to beginning
+2, 5, 10, 8, 56 // 2 and 8 in order
+2, 5, 10, 8, 56 // 5 and 10 in order
+2, 5, 8, 10, 56 // 8 and 10 swapped
+2, 5, 8, 10, 56 // 10 and 56 in order
+// Go back to beginning
+2, 5, 8, 10, 56 // 2 and 5 in order
+2, 5, 8, 10, 56 // 5 and 8 in order
+2, 5, 8, 10, 56 // 8 and 10 in order
+2, 5, 8, 10, 56 // 10 and 56 in order
+</pre>
+</div></div></div></div>
 In C, it can be implemented as,<br><br>
 <pre><code class="language-C">#include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 #include &lt;string.h&gt;
 
-void swap(void *a, void *b, int item_size)
-{
-  char buffer[item_size];
-  memcpy(buffer, a, item_size);
-  memcpy(a, b, item_size);
-  memcpy(b, buffer, item_size);
-}
-
 void bubble_sort(void *arr, int num_items, int item_size,
                  int (*compare)(const void *, const void *))
 {
   int i, j;
-  for (i = 0; i < num_items - 1; i++)
-  {
-    for (j = 0; j < num_items - i - 1; j++)
-    {
-      char *a = (char *)arr + j * item_size;
-      char *b = (char *)arr + (j + 1) * item_size;
-      if (compare(a, b) > 0)
-      {
-        swap(a, b, item_size);
+  void *temp = malloc(item_size);
+
+  for (i = 0; i < num_items - 1; i++){
+    for (j = 0; j < num_items - i - 1; j++){
+      // compare arr[j] and arr[j + 1], swap if necessary
+      // arr[j] only makes sense if array is of type int*, float*, etc.
+      void *p_j = arr + j * item_size;
+      void *p_j1 = arr + (j + 1) * item_size;
+
+      // Now can compute compare(p_j, p_j1)
+      if (compare(p_j, p_j1) > 0){
+        // kind of want to swap *p_j and *p_j1
+        memcpy(temp, p_j, item_size); // temp = *p_j
+        memcpy(p_j, p_j1, item_size);
+        memcpy(p_j1, temp, item_size);
       }
     }
   }
+  free(temp);
 }
 
-int compare_int(const void *p_a, const void *p_b) {
+int compare_int(const void *p_a, const void *p_b)
+{
   const int *x = (const int *)p_a;
   const int *y = (const int *)p_b;
   return *x - *y;
 }
 
-int main() {
+int main()
+{
   int arr[] = {64, 34, 25, 12, 22, 11, 90};
   int num_items = sizeof(arr) / sizeof(arr[0]);
   bubble_sort(arr, num_items, sizeof(int), compare_int);
@@ -259,7 +295,7 @@ Here are some comments about the signature of the <code>bubble_sort</code> funct
     </li>
     <li><code>int (*compare)(const void *, const void *)</code> is a pointer to a comparison function. The comparison function takes two pointers to void as arguments and returns an integer less than, equal to, or greater than zero, depending on the result of the comparison. This allows the function to be used with arrays of any data type and to sort the array in any order.</li>
 </ul>
-Note that when we swap two elements in the array, we need to use the <code>memcpy</code> function to copy the data from one element to another. This is because the <code>swap</code> function takes pointers to void as arguments, so we don't know the data type of the elements in the array.<br><br>The <code>memcpy</code> function takes three arguments: the destination, the source, and the number of bytes to copy. The destination and source are both pointers to void, so we can use the <code>swap</code> function with arrays of any data type.
+Note that when we swap two elements in the array, we need to use the <code>memcpy</code> function to copy the data from one element to another. This is because we don't know the data type of the elements in the array.<br><br>The <code>memcpy</code> function takes three arguments: the destination, the source, and the number of bytes to copy. The destination and source are both pointers to void, so we can use the <code>swap</code> function with arrays of any data type.
 <div class="card">
   <h3 class="card-header">Exercise</h5>
   <div class="card-body">
@@ -274,11 +310,162 @@ Note that when we swap two elements in the array, we need to use the <code>memcp
     There is no stop condition. If the array is somehow fully sorted halfway into the program, it will still run to the very end (even if you pass in an already sorted array!)
   </div>
 </div>
+</div>
+</div>
+<h2 id="detailed-bubble-sort">Optimizing Bubble Sort</h2>
+We can modify the program such that if a full pass through the array is made without any swaps, then the array is already sorted and we can stop the program. This can be done by modifying the <code>bubble_sort</code> function as follows:
+<pre><code class="language-C">void bubble_sort(void *arr, int num_items, int item_size,
+                 int (*compare)(const void *, const void *))
+{
+  int i, j;
+  void *temp = malloc(item_size);
 
-</div>
-</div>
+  for (i = 0; i < num_items - 1; i++)
+  {
+    int swapped = 0;
+    for (j = 0; j < num_items - i - 1; j++)
+    {
+      // compare arr[j] and arr[j + 1], swap if necessary
+      // arr[j] only makes sense if array is of type int*, float*, etc.
+      void *p_j = arr + j * item_size;
+      void *p_j1 = arr + (j + 1) * item_size;
+
+      // Now can compute compare(p_j, p_j1)
+      if (compare(p_j, p_j1) > 0)
+      {
+        // kind of want to swap *p_j and *p_j1
+        memcpy(temp, p_j, item_size); // temp = *p_j
+        memcpy(p_j, p_j1, item_size);
+        memcpy(p_j1, temp, item_size);
+        swapped = 1;
+      }
+    }
+    if (!swapped){
+      break; // return could cause a memory leak
+             // could go free(temp) and return
+    }
+  }
+  free(temp);
+}
+</code></pre>
+
+<h1 id="L13">L13: Patch</h1>
+Refer to the pre-lecture code <a href="https://www.cs.toronto.edu/~guerzhoy/190/lec/W05/patch.c">patch.c</a> and <a href="https://www.cs.toronto.edu/~guerzhoy/190/lec/W05/patch.py">patch.py</a>
+<h2 id="L13-GDB">Using GDB</h2>
+First, compile <code>patch.c</code> and you should get an output file. See Lecture 10 for more information on compiling C code. After it is compiled, we can run 
+<pre><code class="language-bash">gdb patch</code></pre>
+Then typing 
+<pre><code class="language-bash">layout asm</code></pre>
+we are able to get the machine instructions that comprise the code. You don't need to worry about this right now, you'll learn about it in 2nd year ECE253 :) The only thing we need to understand is that the compiler is able to translate the C code into machine code, which gives very simple instructions.
+<h2 id="L13-changing-g">Changing a Function</h2>
+The goal of this exercise is to change the function <code>g</code> such that it behaves like the function <code>f</code>. They are defined as follows:
+<pre><code class="language-C">int f(int a, int b, int c)
+{
+    return a + b;
+}
+
+int g(int a, int b, int c)
+{
+    return a + c;
+}
+</code></pre>
+When looking at the machine instructions, I obtain the following snippet:
+<pre><code class="language-assembly">
+│   0x1189 &lt;f&gt;              endbr64
+│   0x118d &lt;f+4&gt;            push   %rbp
+│   0x118e &lt;f+5&gt;            mov    %rsp,%rbp
+│   0x1191 &lt;f+8&gt;            mov    %edi,-0x4(%rbp)
+│   0x1194 &lt;f+11&gt;           mov    %esi,-0x8(%rbp)
+│   0x1197 &lt;f+14&gt;           mov    %edx,-0xc(%rbp)
+│   0x119a &lt;f+17&gt;           mov    -0x4(%rbp),%edx
+│   0x119d &lt;f+20&gt;           mov    -0x8(%rbp),%eax
+│   0x11a0 &lt;f+23&gt;           add    %edx,%eax
+│   0x11a2 &lt;f+25&gt;           pop    %rbp
+│   0x11a3 &lt;f+26&gt;           retq
+│   0x11a4 &lt;g&gt;              endbr64
+│   0x11a8 &lt;g+4&gt;            push   %rbp
+│   0x11a9 &lt;g+5&gt;            mov    %rsp,%rbp
+│   0x11ac &lt;g+8&gt;            mov    %edi,-0x4(%rbp)
+│   0x11af &lt;g+11&gt;           mov    %esi,-0x8(%rbp)
+│   0x11b2 &lt;g+14&gt;           mov    %edx,-0xc(%rbp)
+│   0x11b5 &lt;g+17&gt;           mov    -0x4(%rbp),%edx
+│   0x11b8 &lt;g+20&gt;           mov    -0xc(%rbp),%eax
+│   0x11bb &lt;g+23&gt;           add    %edx,%eax
+│   0x11bd &lt;g+25&gt;           pop    %rbp
+│   0x11be &lt;g+26&gt;           retq 
+</code></pre>
+Some brief comments about this structure:
+<ul>
+  <li>Each line is an instruction. Each byte of instruction is stored in a different location in memory. The first set of characters represent the memory in hexadecimal.</li>
+  <li>The <code>mov</code> command moves data from one location to another. The first argument is the source, the second argument is the destination.</li>
+  <li>In GDB, we can display the value at an address with the command <code>x 0x119d</code>, which in this particular example gives <code>0x119d &lt;f+20&gt;:  0x01f8458b</code>. The hexadecimal number 0x01f8458b encodes the instructions for that line. We can display it as a decimal if we do <code>x/d 0x119d</code> which outputs <code>0x119d &lt;f+20&gt;:  33047947</code></li>
+</ul>
+If we compare the machine code for both functions, they differ by only one line! Compare &lt;f+20&gt; with &lt;g+20&gt;. If we wish to modify <code>g</code> such that it acts like <code>f</code>, we just need to change what this one line does in memory. This is done using the following code. Consider,
+<pre><code class="language-C">void patch(int (*h)(int, int, int))
+{
+    *(int *)((void*)h + 20 )  = 33047947; //0x01f8458b;
+}
+</code></pre>
+Here is what this function does:
+<ol>
+  <li>It takes in the pointer to a function. Recall that if we want to modify <code>int a = 5;</code> inside a function, we need to pass in the address. The same goes here if we want to modify a function.</li>
+  <li>We cast the pointer to a void pointer (i.e. not associated with any data type) using <code>(void*)h</code>.</li>
+  <li>Note that <code>(void*)h</code> is the address of the start of the function. To get to the part of the function or instructions we actually want to change, we need to increment the address by 20 bytes (which we said earlier was the only place that it differed from <code>f</code>).</li>
+  <li><code>(void*)h + 20</code> is a void pointer that points to the line of instruction we want to change. But we've seen that instructions are encoded by a number, so we need to cast this to an int pointer via <code>(int *)((void*)h + 20)</code>.</li>
+  <li>We've seen that the instruction we want to change this to can be represented as an integer as <code>33047947</code>, so we write this into memory at this address.</li>
+</ol>
+Note that this particular example is not very useful, as it's not a good practice and very difficult to debug, hopefully for obvious reasons. Sometimes it's done for optimizations, but we don't need to worry about that. 
+<h2 id="L13-python-weirdness">Python Memory Model Weirdness</h2>
+Consider the following code,
+<pre><code>import ctypes
+
+def change_float(x):
+    # Go to the memory address of x and change the value there
+    pointer = ctypes.c_void_p(id(x))
+    float_pointer = ctypes.cast(pointer, ctypes.POINTER(ctypes.c_double))
+    float_pointer[2] = 12.0
+
+
+
+if __name__ == '__main__':
+    x = 11.0
+    change_float(x)
+    print(x)
+    print(x == 11.0)
+    print(11.0 == 12.0)
+</code></pre>
+Surprisingly, this prints<pre><code class="language-bash">12.0
+True
+True
+</code></pre>
+As a quick reminder, in Python, variables are essentially just names that are bound to objects. When you pass a variable to a function in Python, what is actually passed is a reference to the object, rather than a copy of the object itself. The code works via,
+<ol>
+  <li>Inside the function, the <code>id</code> function is used to get the memory address of the object, and uses the <code>ctypes</code> module to cast that memory address to a pointer to a <code>ctypes.c_double</code> type. There is some nomenclature confusions here,
+  <ul>
+    <li>In C, a <code>double</code> is a double-precision floating point number (usually 64 bits) while a <code>float</code> is a single-precision floating point number (usually 32 bits)</li>
+    <li>In Python, a float is the same as a double in C.</li>
+  </ul>
+  </li>
+  <li>
+    The line <code>float_pointer[2] = 12.0</code> is setting the value stored at the memory location pointed to by float_pointer to be <code>12.0</code>.
+  </li>
+  <li>
+    This line of code modifies the memory of the float object that was passed to the change_float function, effectively changing the value of that float. The reason this is allowed is because the <code>ctypes</code> module is allowing the user to bypass Python's memory management and directly access memory, which is not typically recommended or necessary.
+  </li>
+  <li>Because of this, <code>x</code>, <code>11.0</code>, and <code>12.0</code> all have the same value, and are equal to each other!</li>
+</ol>
+It's important to note that this is not recommended for general use, as it relies on implementation-specific details and can lead to unexpected behavior and make the code difficult to understand and maintain. It's best to stick to the standard Python operations and data structures, which provide a more predictable and stable behavior.<br><br>
+
+
+
+
+
+What do I need to know and don't know?
+<ul>
+  <li>Know: Python and C memory model</li>
+  <li>Don't Know: Machine Code and how to use <code>ctypes</code> in Python</li>
+</ul>
 <br><br><br><br><br>
-</div>
-    </div>
+ 
   </body>
 </html>
