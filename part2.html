@@ -397,7 +397,7 @@ When looking at the machine instructions, I obtain the following snippet:
 Some brief comments about this structure:
 <ul>
   <li>Each line is an instruction. Each byte of instruction is stored in a different location in memory. The first set of characters represent the memory in hexadecimal.</li>
-  <li>The <code>mov</code> command moves data from one location to another. The first argument is the source, the second argument is the destination.</li>
+  <li>The <code>mov</code> command moves data from one location to another. The first argument is the destination, the second argument is the source.</li>
   <li>In GDB, we can display the value at an address with the command <code>x 0x119d</code>, which in this particular example gives <code>0x119d &lt;f+20&gt;:  0x01f8458b</code>. The hexadecimal number 0x01f8458b encodes the instructions for that line. We can display it as a decimal if we do <code>x/d 0x119d</code> which outputs <code>0x119d &lt;f+20&gt;:  33047947</code></li>
 </ul>
 If we compare the machine code for both functions, they differ by only one line! Compare &lt;f+20&gt; with &lt;g+20&gt;. If we wish to modify <code>g</code> such that it acts like <code>f</code>, we just need to change what this one line does in memory. This is done using the following code. Consider,
@@ -412,7 +412,13 @@ Here is what this function does:
   <li>We cast the pointer to a void pointer (i.e. not associated with any data type) using <code>(void*)h</code>.</li>
   <li>Note that <code>(void*)h</code> is the address of the start of the function. To get to the part of the function or instructions we actually want to change, we need to increment the address by 20 bytes (which we said earlier was the only place that it differed from <code>f</code>).</li>
   <li><code>(void*)h + 20</code> is a void pointer that points to the line of instruction we want to change. But we've seen that instructions are encoded by a number, so we need to cast this to an int pointer via <code>(int *)((void*)h + 20)</code>.</li>
-  <li>We've seen that the instruction we want to change this to can be represented as an integer as <code>33047947</code>, so we write this into memory at this address.</li>
+  <li>We've seen that the instruction we want to change this to can be represented as an integer as <code>33047947</code>, so we write this into memory at this address.
+    <ul>
+      <li>Clarification: Note that an integer is 4 bytes but the instruction at <code>0x11b8 &lt;g+20&gt;</code> is 3 bytes, since the next instruction is at <code>0x11b8 &lt;g+20&gt;</code>. The reason this still works is because the instruction at <code>0x11bb &lt;g+23&gt;</code> and <code>0x11a0 &lt;f+23&gt;</code> is the same, so the 4th byte will be overwritten with a byte that is equal to it.
+      </li>
+
+    </ul>
+  </li>
 </ol>
 Note that this particular example is not very useful, as it's not a good practice and very difficult to debug, hopefully for obvious reasons. Sometimes it's done for optimizations, but we don't need to worry about that. 
 <h2 id="L13-python-weirdness">Python Memory Model Weirdness</h2>
@@ -430,9 +436,10 @@ def change_float(x):
 if __name__ == '__main__':
     x = 11.0
     change_float(x)
-    print(x)
-    print(x == 11.0)
-    print(11.0 == 12.0)
+    print(x) # 12.0
+    print(x == 11.0) # True
+    print(11.0 == 12.0) # True
+    print(10+1.0 < 10+2.0) # False
 </code></pre>
 Surprisingly, this prints<pre><code class="language-bash">12.0
 True
@@ -450,11 +457,13 @@ As a quick reminder, in Python, variables are essentially just names that are bo
     The line <code>float_pointer[2] = 12.0</code> is setting the value stored at the memory location pointed to by float_pointer to be <code>12.0</code>.
   </li>
   <li>
-    This line of code modifies the memory of the float object that was passed to the change_float function, effectively changing the value of that float. The reason this is allowed is because the <code>ctypes</code> module is allowing the user to bypass Python's memory management and directly access memory, which is not typically recommended or necessary.
+    This line of code modifies the memory of the float object that was passed to the change_float function, so that the address at which the values <code>x</code> and <code>12.0</code> are stored, is the same, so <code>x == 12.0</code> and their values are equal. However, the object <code>x</code> and <code>11.0</code> are identical (i.e. they have the same id so Python doesn't both checking their actual values), so we also have <code>x == 11.0</code> and <code>11.0 == 12.0</code> (since 11.0 is the same object as <code>x</code>).<br><br>
+
+    Note that the memory representation of an object is the way that the value of the object is stored in computer memory, while the id is a unique identifer that is assigned to each object. Two objects could have different ids but the same memory representation. The reason this is allowed is because the <code>ctypes</code> module is allowing the user to bypass Python's memory management and directly access memory, which is not typically recommended or necessary.
   </li>
-  <li>Because of this, <code>x</code>, <code>11.0</code>, and <code>12.0</code> all have the same value, and are equal to each other!</li>
+  <li>The reason the last three lines work is that the 11.0 literal is mapped to refer to a single id address since it appears in the code several times. So <code>print(10+1.0 < 10+2.0)</code> will still print False.</li>
 </ol>
-It's important to note that this is not recommended for general use, as it relies on implementation-specific details and can lead to unexpected behavior and make the code difficult to understand and maintain. It's best to stick to the standard Python operations and data structures, which provide a more predictable and stable behavior.<br><br>
+It's important to recognize that this is not recommended for general use, as it relies on implementation-specific details and can lead to unexpected behavior and make the code difficult to understand and maintain. It's best to stick to the standard Python operations and data structures, which provide a more predictable and stable behavior.<br><br>
 
 
 
