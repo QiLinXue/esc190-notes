@@ -465,15 +465,126 @@ As a quick reminder, in Python, variables are essentially just names that are bo
 </ol>
 It's important to recognize that this is not recommended for general use, as it relies on implementation-specific details and can lead to unexpected behavior and make the code difficult to understand and maintain. It's best to stick to the standard Python operations and data structures, which provide a more predictable and stable behavior.<br><br>
 
-
-
-
-
 What do I need to know and don't know?
 <ul>
   <li>Know: Python and C memory model</li>
   <li>Don't Know: Machine Code and how to use <code>ctypes</code> in Python</li>
 </ul>
+<h2 id="L14-valgrind">Python Memory Model and Valgrind</h2>
+<h3 id="L14-memory-model">Python Memory Model</h3>
+Let us review the previous section on the Python memory model and refer to the previous code. When we assign values to variables, we create a variable table and a memory table. So <code>x = 11.0</code> will give us
+<pre>-----------
+Variable Table
+x | @1032
+-----------
+Memory Table
+%1032 | 11.0
+-----------
+</pre> and after <code>change_float(x)</code> is ran, we get the following tables:
+<pre>-----------
+Variable Table
+x | @1032
+-----------
+Memory Table
+%1032 | 12.0
+-----------
+</pre>
+Here, the address of <code>x</code> has not changed, but the value at the address that <code>x</code> refers to has changed to <code>12.</code> When variables are passed to functions in Python, we always pass through the address of the variable, so this is analogous to C, where we pass in a pointer and change the value at that address. Usually, this doesn't matter that much because most objects are <b>immutable,</b> which means that they cannot be changed once they are created and re-assigning the variable to refer to a new address in memory. But with <code>ctypes</code>, we can make Python variables behave more like how they would in C, but there really isn't a lot of applications besides for pedagogical purposes.
+<br><br>
+Another important feature of Python is that when the code runs, it first scans the entire code for <b>literals.</b> Anytime it sees a literal and the literal is repeated, it maps it to the same memory location. This is done for optimization purposes, as literals are immutable. This is why using <code>ctypes</code> can lead to some counterintuitive behaviour.
+<br><br>
+This is why when we run <code>print(11.0)</code> it prints out <code>12.0</code>, as it is getting the ID of the literal <Code>11.0</Code> going to the corresponding address, but we overwrote the value at that address as <code>12.0</code>, which is what it will print out. So even something like <code>10.0 + 2.0 == 11.0</code> will still return <code>TRUE</code> since the address that the literal <code>11.0</code> refers to stores the value <code>12.0.</code>
+<br><br>
+However, <pre><code class="language-python">x = 5
+y = 7
+x1 = 6
+print(x + y == x1 + y)
+</pre>
+will give us <code>False</code> because these are no longer connected to the literal <code>11.0</code> which is what started this whole mess.
+<h3 id="L14-valgrind">Valgrind</h3>
+We can use valgrind to debug problems with memory issues. There are four ways to run valgrind:
+<ul>
+  <li>Linux: Can be installed</li>
+  <li>Windows: Install Windows Subsystem for Linux (WSL): <a href="https://learn.microsoft.com/en-us/windows/wsl/install">See here.</a></li>
+  <li>Any computer: Connect to the ECF Linux machines</li>
+  <li>Gradescope: There is a "test" assignment on gradescope which will run Valgrind for you.</li>
+</ul>
+Consider the following two programs,
+<pre><code class="language-C">#include <stdio.h>
+#include <stdlib.h>
+
+int main(){
+    char a[6] = "EngSci";
+    printf("%c", a[1000000]);
+}
+</code></pre>
+<pre><code class="language-C">#include <stdio.h>
+#include <stdlib.h>
+  
+int main(){
+    char *p = malloc(1000000);
+    return 0;
+}</code></pre>
+There are two issues with it:
+<ul>
+  <li>Undefined behaviour: The program tries to access a memory location that is out of bounds. The array <code>a</code> has a size of 6, and accessing an index that is out of bounds leads to undefined behavior, and in this case, it results in a segmentation fault.</li>
+  <li>Memory leak: The program allocates memory using the <code>malloc</code> function but does not free it, leading to a memory leak.</li>
+</ul>
+We can run valgrind by first compiling the first program, then running:
+<pre><code class="language-bash">valgrind ./file_name</code></pre>
+On my system, I get the following message:
+<pre>==3274== Memcheck, a memory error detector
+==3274== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==3274== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==3274== Command: ./test_valgrind
+==3274== 
+==3274== Invalid read of size 1
+==3274==    at 0x109191: main (in /home/xueqilin/esc190_notes/test_valgrind)
+==3274==  Address 0x1fff0f3862 is not stack'd, malloc'd or (recently) free'd
+==3274== 
+==3274== 
+==3274== Process terminating with default action of signal 11 (SIGSEGV)
+==3274==  Access not within mapped region at address 0x1FFF0F3862
+==3274==    at 0x109191: main (in /home/xueqilin/esc190_notes/test_valgrind)
+==3274==  If you believe this happened as a result of a stack
+==3274==  overflow in your program's main thread (unlikely but
+==3274==  possible), you can try to increase the size of the
+==3274==  main thread stack using the --main-stacksize= flag.
+==3274==  The main thread stack size used in this run was 8388608.
+==3274== 
+==3274== HEAP SUMMARY:
+==3274==     in use at exit: 0 bytes in 0 blocks
+==3274==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==3274== 
+==3274== All heap blocks were freed -- no leaks are possible
+==3274== 
+==3274== For lists of detected and suppressed errors, rerun with: -s
+==3274== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+Segmentation fault
+</pre>
+This error message tells us that the error occurred in the main function, and it was an invalid read of size 1. The program tried to read from the memory location at address 0x1fff0f3862, which was not a valid location. If we run the VS Code Debugger, it will also automatically perform post-mortem debugging and tell us the line where the segmentation fault occurs. Running valgrind on the second program gives
+<pre>==3471== Memcheck, a memory error detector
+==3471== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==3471== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==3471== Command: ./test_valgrind
+==3471== 
+==3471== 
+==3471== HEAP SUMMARY:
+==3471==     in use at exit: 1,000,000 bytes in 1 blocks
+==3471==   total heap usage: 1 allocs, 0 frees, 1,000,000 bytes allocated
+==3471== 
+==3471== LEAK SUMMARY:
+==3471==    definitely lost: 1,000,000 bytes in 1 blocks
+==3471==    indirectly lost: 0 bytes in 0 blocks
+==3471==      possibly lost: 0 bytes in 0 blocks
+==3471==    still reachable: 0 bytes in 0 blocks
+==3471==         suppressed: 0 bytes in 0 blocks
+==3471== Rerun with --leak-check=full to see details of leaked memory
+==3471== 
+==3471== For lists of detected and suppressed errors, rerun with: -s
+==3471== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)</pre>
+which tells us how many bytes are lost. In real applications, this example is not particularly helpful to us as it only tells us thee memory that is lost at the end of the program, and most systems automatically clean up the memory once the program is finished running. However, for continuously running programs, it is important to make sure there are no memory leaks. 
+
 <br><br><br><br><br>
  
   </body>
