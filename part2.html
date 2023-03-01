@@ -965,9 +965,9 @@ if __name__ == '__name__':
   change_name(s)
 </code></pre>
 How could we do the same thing in C? It is important to remember that in Python we are always dealing with addresses, we need to reflect this in our C code,
-<pre><code class="C">#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+<pre><code class="C">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
 
 typedef struct student2{
     char *name;
@@ -1090,7 +1090,7 @@ which corresponds to the following memory table after properly setting up the st
     </tr>
   </tbody>
 </table>
-Now we can change the name of the student in the <code>change_name</code> function. We pass in <code>p_s</code> which is <code>56</code>, the address where the student is stored. We then access the name of the student via <code>p_s->name</code> and set it equal to <code>"b"</code>. Note that if we wrote <code>'b'</code> instead, there would be a segmentation fault, since <code>'b'</code> corresponds to a character and <code>"b"</code> corresponds to an address (i.e. it points to the first character of a string).
+Now we can change the name of the student in the <code>change_name</code> function. We pass in <code>p_s</code> which is <code>56</code>, the address where the student is stored. We then access the name of the student via <code>p_s->name</code> and set it equal to <code>"b"</code>. Note that if we wrote <code>'b'</code> instead, there would be a segmentation fault when we try to later print it, since <code>'b'</code> corresponds to a character and <code>"b"</code> corresponds to an address (i.e. it points to the first character of a string).
 
 <br><br><br><br><br>
  
