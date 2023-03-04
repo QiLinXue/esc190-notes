@@ -954,7 +954,7 @@ After running <code>change_name_right_b()</code> we get the following memory tab
     </tr>
   </tbody>
 </table>
-Note that in this function, the function first creates <code>'c','\0'</code> somewhere in memory and then uses the <code>strcpy</code> function to copy the string to the address of <code>s.name</code>.
+Note that in this function, the function first creates <code>'c','\0'</code> somewhere in memory and then uses the <code>strcpy</code> function to copy the string to the address of <code>s.name</code>. It is also important to remember that 
 <h2 id="L16-equivalent">C equivalent of Python Code</h2>
 Suppose we have the following Python code:
 <pre><code class="python">def change_name(s):
@@ -1091,7 +1091,141 @@ which corresponds to the following memory table after properly setting up the st
   </tbody>
 </table>
 Now we can change the name of the student in the <code>change_name</code> function. We pass in <code>p_s</code> which is <code>56</code>, the address where the student is stored. We then access the name of the student via <code>p_s->name</code> and set it equal to <code>"b"</code>. Note that if we wrote <code>'b'</code> instead, there would be a segmentation fault when we try to later print it, since <code>'b'</code> corresponds to a character and <code>"b"</code> corresponds to an address (i.e. it points to the first character of a string).
+<h1 id="L17-Consts">L17: Consts and Linked Lists</h1>
+<h2 id="L17-Const">The const keyword</h2>
+<ul>
+  <li><code>const</code> indicates that a value is not to be changing. Changing a <code>const</code> value could result in a compilation warning or warning. The intended purpose is to help catch errors in the code earlier. Consider:
+<pre><code class="C">const char c = 42;
+c = 43; // compilation error
 
+const char *p_c = (char*)malloc(sizeof(char));
+*p_c = 0; // compilation error
+p_c = "hello"; // fine
+</code></pre>
+  </li>
+  <li>In the second part of the above example, we demonstrate that we are not allowed to modify the value of the pointer. However, we can assign the pointer <code>p_c</code> to point to a string literal <code>"hello"</code>. This is allowed because the pointer itself is not modified, only the memory location it points to. </li>
+  <li>String literals like <code>"hello"</code> are of type <code>const char*</code></li>
+  <li>Sometimes, we wish to not be able to change the address, but be able to go to the address and change the contents. We can achieve that via the following:
+<pre><code class="C">int * const p_n = (int*)malloc(sizeof(int))
+p_n = 0; // error
+*p_n = 1; // fine
+</code></pre>
+  </li>
+  <li>Similarly, we can disallow changing both the address and the contents (but this is usually not done)
+<pre><code class="C">const int * const p_n = (int*)malloc(sizeof(int))
+p_n = 0; // error
+*p_n = 1; // error
+</code></pre>
+  </li>
+</ul>
+We can apply the <code>const</code> keyword to write our student2 structure as follows:
+<pre><code class="C">typedef struct student2{
+    const char *name;
+    const int *p_age;
+} student2;</code></pre>
+This will reserve places in memory for the name and age of the student, but will not allow us to change them. Note that we cannot change the name like 
+<pre><code class='c'>void change_name_wrong(student2 *p_s)
+{
+    p_s->name[0] = 'b';
+}</code></pre>
+since <code>*p_s->name</code> is read-only. The above code attempts to go to the address and change the value at that address (which can't be done, since it's reserved), while doing something like
+<pre><code class='c'>void change_name_right(student2 *p_s)
+{
+    p_s->name = "b";
+}</code></pre>
+is fine since we are not changing the value at the address, but rather the address itself.
+<h2 id="L17-Linked-Lists">Linked Lists</h2>
+Motivation: We cannot dynamically add an element to an existing array or block of memory easily, as there could be no space there! The only option we have is to re-allocate everything to a new location with enough space. This is inefficient, especially for larger arrays. Instead, we can use a special data structure called a <b>linked list</b>.
+<ul>
+  <li>A linked list consists of a data structure called a <code>node</code>, which consists of the following information:</li>
+  <ul>
+    <li><code>data:</code> the actual data you need to store</li>
+    <li><code>next:</code> the address of the next node</li>
+  </ul>
+  <li>We can then make an array by creating a chain of these nodes, where we can find the next node by following the <code>next</code> pointer. While this uses up more space than a regular array, it has the benefit of preventing re-allocating everything. For example, if we want to add an element to the end of the list, we can simply create a new node and set the <code>next</code> pointer of the last node to point to the new node (+ a minor detail we'll touch on in a bit). </li>
+  <li>See the <a href="https://www.cs.toronto.edu/~guerzhoy/190/lec/W07/LL.pdf">lecture slides</a> for a visual of linked lists and their operations.</li>
+</ul>
+<h2 id="L17-LL-operations">Linked List Operations</h2>
+We want to implement the following operations: Inserting, Removing, and Searching.
+<ul>
+  <li>Inserting: Suppose we already have a pointer to a node, and we wish to insert a node after that. What we can do is create this new node, and set its <code>next</code> pointer to point to the node that the original node pointed to. Then, we can set the original node's <code>next</code> pointer to point to the new node we just created.</li>
+  <ul><li><b>Analogy:</b> A popular children's activity is to form a <i>human train,</i> where each person puts their hand on the shoulder of the person in front of them, forming a chain (linked list). If a new participant Bob (the new node) wants to join the train in front of Alice (who is holding Carol's shoulder), Bob can do so by holding onto Carol's shoulder, and then Alice can hold onto Bob's shoulder. </li></ul>
+  <li>Removing: Suppose we already have a pointer to a node, and we wish to delete that node. We can do so by setting the <code>next</code> pointer of the node before the node we want to delete to point to the node after the node we want to delete. Finally, we free up the memory.</li>
+  <ul><li><b>Analogy:</b> If Bob wants to leave the train, he can simply let go of Carol's shoulder, and Alice can hold onto Carol's shoulder. </li></ul>
+  <li>Getting: Suppose we wish to find a node (i.e. its pointer) at a certain index (i.e. the <code>i</code>th node) In the previous 2 operations, we assumed we already had this pointer. We can do so by iterating through the linked list by following the <code>next</code> pointer until we find the node we want. </li>
+  <ul><li><b>Analogy:</b> If a teacher wants to find the 7th student, they can start from the very beginning of the train and follow it to the end until the 7th student is found.</li></ul>
+  </li>  
+</ul>
+In summary, we can delete and insert nodes in constant time, which is faster than array operations which are O(n). However, getting the <code>i</code>th node is linear time, while we can do that in constant time for arrays.
+<h2 id="L17-LL-implementation">Linked List Implementation</h2>
+We can implement the linked list as follows:
+<pre><code class="c">#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct node{
+    int data;
+    struct node *next;
+} node;
+
+typedef struct LL{
+    node *head;
+    node *size;
+} LL;
+
+void create_node(node **p_n, int data)
+{
+    *p_n = (node*)malloc(sizeof(node));
+    (*p_n)->data = data;
+    (*p_n)->next = NULL;
+}
+
+
+void create_LL_from_data(LL **p_LL, int *data_arr, int size)
+{
+    (*p_LL) = (LL*)malloc(sizeof(LL));
+    (*p_LL)->size = 0; // initialize size to 0
+    
+    // keep track of the last node of the linked list
+    node *tail = 0;
+
+    for(int i = 0; i < size; i++){
+
+        // n is a pointer to a node with data = data[i], next = NULL
+        node *n;
+        create_node(&n, data_arr[i]);
+
+        // If the last node is the 1st node
+        if(tail == 0){
+            (*p_LL)->head = n;
+        }
+
+        // If the last node is not the 1st node
+        else{
+            // append the new node to the end of the linked list
+            tail->next = n;
+        }
+
+        // update the tail
+        tail = n;
+
+        // update the size
+        (*p_LL)->size++;
+    }
+}
+
+int main(){
+    int data_arr[] = {1, 2, 3, 4, 5};
+    LL *p_LL;
+    create_LL_from_data(&p_LL, data_arr, 5);
+}</code></pre>
+Here are some observations:
+<ul>
+<li>The idea behind the <code>create_LL_from_data</code> function is to keep track of the last node of the linked list (known as the tail) and constantly update it such that every time we create a new node, the tail's <code>next</code> pointer points to the new node. </li>
+<li>Initializing a new node like <code>node *n</code> will cause the <code>next</code> pointer to be <code>0</code> i.e. <code>NULL</code>. This is how we can tell we reached the end of a linked list.</li>
+</li>
+<li>we need to use double pointers because we want to be able to modify the value of the <code>LL</code> pointer (i.e. the memory address it points to), rather than just the value of the data it points to.</li>
+</ul>
 <br><br><br><br><br>
  
   </body>
