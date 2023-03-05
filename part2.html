@@ -510,16 +510,16 @@ We can use valgrind to debug problems with memory issues. There are four ways to
   <li>Gradescope: There is a "test" assignment on gradescope which will run Valgrind for you.</li>
 </ul>
 Consider the following two programs,
-<pre><code class="language-C">#include <stdio.h>
-#include <stdlib.h>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+#include &lt;stdlib.h&gt
 
 int main(){
     char a[6] = "EngSci";
     printf("%c", a[1000000]);
 }
 </code></pre>
-<pre><code class="language-C">#include <stdio.h>
-#include <stdlib.h>
+<pre><code class="language-C">#include &lt;stdio.h&gt
+#include &lt;stdlib.h&gt
   
 int main(){
     char *p = malloc(1000000);
@@ -769,8 +769,8 @@ However, if we try to this this code, we get \(12.148\) instead of \(12.528\). W
 and now it will work. See <a href="data.txt">data.txt</a> and <a href="read_doubles.c">read_doubles.c</a> for the full code and test cases.
 <h1 id="recursion">L16: Memory Model Review for Structs</h1>
 Consider the following code, which creates a student struct and attempts to change the name:
-<pre><code class="C">#include <stdio.h>
-#include <string.h>
+<pre><code class="C">#include &lt;stdio.h&gt
+#include &lt;string.h&gt
 
 typedef struct student1{
     char name[3];
@@ -1103,7 +1103,8 @@ const char *p_c = (char*)malloc(sizeof(char));
 p_c = "hello"; // fine
 </code></pre>
   </li>
-  <li>In the second part of the above example, we demonstrate that we are not allowed to modify the value of the pointer. However, we can assign the pointer <code>p_c</code> to point to a string literal <code>"hello"</code>. This is allowed because the pointer itself is not modified, only the memory location it points to. </li>
+  <li>In the second part of the above example, we demonstrate that we are not allowed to modify the contents of
+    the memory at the address p_c. However, we can assign the pointer <code>p_c</code> to point to a string literal <code>"hello"</code>. This is allowed because the pointer itself is not modified, only the memory location it points to. </li>
   <li>String literals like <code>"hello"</code> are of type <code>const char*</code></li>
   <li>Sometimes, we wish to not be able to change the address, but be able to go to the address and change the contents. We can achieve that via the following:
 <pre><code class="C">int * const p_n = (int*)malloc(sizeof(int))
@@ -1123,12 +1124,12 @@ We can apply the <code>const</code> keyword to write our student2 structure as f
     const char *name;
     const int *p_age;
 } student2;</code></pre>
-This will reserve places in memory for the name and age of the student, but will not allow us to change them. Note that we cannot change the name like 
+When an instance of this struct is created, the <code>const</code> keyword tells us we are reserving a place in memory for the address of the age and the address of the name. Like before, we cannot change the name like
 <pre><code class='c'>void change_name_wrong(student2 *p_s)
 {
     p_s->name[0] = 'b';
 }</code></pre>
-since <code>*p_s->name</code> is read-only. The above code attempts to go to the address and change the value at that address (which can't be done, since it's reserved), while doing something like
+since <code>p_s->name[0],p_s->name[1],</code> etc. are read-only (cannot change the value of the memory at the pointer). The above code attempts to go to the address and change the value at that address (which can't be done, since it's a const), while doing something like
 <pre><code class='c'>void change_name_right(student2 *p_s)
 {
     p_s->name = "b";
@@ -1159,9 +1160,9 @@ We want to implement the following operations: Inserting, Removing, and Searchin
 In summary, we can delete and insert nodes in constant time, which is faster than array operations which are O(n). However, getting the <code>i</code>th node is linear time, while we can do that in constant time for arrays.
 <h2 id="L17-LL-implementation">Linked List Implementation</h2>
 We can implement the linked list as follows:
-<pre><code class="c">#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+<pre><code class="c">#include &lt;stdio.h&gt
+#include &lt;string.h&gt
+#include &lt;stdlib.h&gt
 
 typedef struct node{
     int data;
@@ -1170,7 +1171,7 @@ typedef struct node{
 
 typedef struct LL{
     node *head;
-    node *size;
+    int *size;
 } LL;
 
 void create_node(node **p_n, int data)
@@ -1224,7 +1225,7 @@ Here are some observations:
 <li>The idea behind the <code>create_LL_from_data</code> function is to keep track of the last node of the linked list (known as the tail) and constantly update it such that every time we create a new node, the tail's <code>next</code> pointer points to the new node. </li>
 <li>Initializing a new node like <code>node *n</code> will cause the <code>next</code> pointer to be <code>0</code> i.e. <code>NULL</code>. This is how we can tell we reached the end of a linked list.</li>
 </li>
-<li>we need to use double pointers because we want to be able to modify the value of the <code>LL</code> pointer (i.e. the memory address it points to), rather than just the value of the data it points to.</li>
+<li>we need to use pointers to pointers because we want to be able to modify the value of the <code>LL</code> pointer (i.e. the memory address it points to), rather than just the value of the data it points to.</li>
 </ul>
 <br><br><br><br><br>
  
