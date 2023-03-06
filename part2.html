@@ -1227,6 +1227,125 @@ Here are some observations:
 </li>
 <li>we need to use pointers to pointers because we want to be able to modify the value of the <code>LL</code> pointer (i.e. the memory address it points to), rather than just the value of the data it points to.</li>
 </ul>
+<h1 id="L18">Abstract Data Type</h1>
+An <b>abstract data type</b> (ADT) is any collection of values, together with operations on those values. For example:
+<ul>
+  <li><code>ints</code> with operations <code>+,-*,/,%</code></li>
+  <li><code>lists</code> with operations insert, remove, get</li>
+</ul>
+An ADT specifies what values are represented and what operations can be performed, but not how to store them or how to carry them out. They allow for modularity and reuse, as it is independent of implementation. A <b>data structure</b> is an implementation of an ADT as it is a way to represent the values, and algorithms for each operation.<br><br>
+
+Example: Consider a <code>list</code> which is an ordered collection of data items that supports the following operations:
+<ul>
+  <li><code>Insert(list, i, x)</code>: add item <code>x</code> at index <code>i</code> of <code>list</code>. The item previously at index <code>i</code>, and all following items, are shifted up by one index to make room for <code>x</code>.</li>
+  <li><code>Remove(list, i)</code>: remove item at index <code>i</code> of <code>list</code>. The item previously at index <code>i+1</code>, and all following items, are shifted down by one index to fill the gap.</li>
+  <li><code>Get(list, i)</code>: return the item at index <code>i</code> of <code>list</code>.</li>
+</ul>
+We define this ADT very abstractly, such that we only describe the outcome of each operation, but not how to implement it. For example, lists can be implemented using arrays, but it can also be implemented using linked lists.
+<h2 id="L18-LL-insert">Insert for Linked List</h2>
+In the previous lecture, we defined the linked list struct as follows:
+<pre><code class="c">typedef struct node{
+  int data;
+  struct node *next;
+} node;
+
+typedef struct LL{
+  node *head;
+  int *size;
+} LL;
+</code></pre>
+We also talked about how to implement insertions conceptually. We can implement it as follows:
+<pre><code class="c">
+void LL_insert(LL *my_list, int new_elem, int index)
+{
+  // Create the new node 
+  node *n;
+  create_node(&n, new_elem);
+
+  // If the list is empty
+  if(my_list->head == NULL){
+    my_list->head = n;
+    my_list->size++;
+    return;
+  }
+
+  // To insert at the very beginning
+  if(index == 0){
+    n->next = my_list->head;
+    my_list->head = n;
+    my_list->size++;
+    return;
+  }
+
+  // Errors
+  if (index < 0 || index > my_list->size-1){
+    fprintf(stderr, "Invalid index %d", index);
+    exit(1); // exits the program, returns 1 to the OS
+  }
+
+  // Traverse to the desired index
+  node *cur = my_list->head;
+  for(int i = 0; i < index; i++){
+    cur = cur->next;
+  }
+
+  n->next = cur->next;
+  cur->next = n;
+  my_list->size++;
+}
+</code></pre>
+Note that we deal with a few edge cases:
+<ul>
+  <li>If the list is empty, which we can check if the head is <code>NULL</code>, then we proceed to make the new node the first (and only) element of the linked list.</li>
+  <li>We want to implement it such that inserting it at index <code>0</code> corresponds to inserting it at the very beginning. To do this, not only do we need to update the <code>next</code> pointer of the new node, but the <code>head</code> pointer of our linked list. The order here is important. If we instead ran <code>my_list->head = n;</code> first, we lose information on where the original head is located.</li>
+  <li>If the index is invalid, there are a few possibilities of what we can do.<ol>
+    <li>Just Crash: Sometimes this is a good idea, if we are trying to optimize the code. It's on the user to give valid parameters.</li>
+    <li>Don't crash and don't insert. Instead, set a global variable to indicate an error. The reason we need a global variable here is that there's no other thing we can return that will indicate this. For example, if we are trying to return the element at an invalid index, a naive idea would be to return something like <code>-1</code> or <code>"Error"</code>, but how do we know that this is actually an error and their list doesn't actually include this!</li>
+    <li>Print an error message. In particular the best way to print an error is using <code>fprintf(stderr, "message")</code> because it prints to the standard error stream, which is different from the standard output stream. Unlike <code>printf</code> (which sometimes doesn't show in terminal), this will always show, and allows regular print statements and error messages to be separated.</li>
+  </ol>
+
+  </li>
+</ul>
+In the other cases, we first need to traverse to the desired index. Because this is not an array, we need to follow the linked list via the <code>next</code> pointers. Once we reach the desired index, we can update the <code>next</code> pointers of the new node and the node before it. Similar to above, the order of updating the <code>next</code> pointers matter!
+<h2 id="L18-LL-remove">Remove and Get for Linked List</h2>
+The code to remove and get for linked lists can be found <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/linkedlist.c">here</a> and is very similar to the code for insert. For deletion, we just need to remember to update the <code>next</code> pointer of the node before the one we are deleting, and freeing up the memory. Like most cases, the order here is important.
+
+Getting is actually partially implemented in insertion and deletion, as we need to find the <code>i</code>th element. Error handling for all three functions are also similar.
+<h2 id="L18-Coding-Practices">Good Coding Practices</h2>
+Suppose you have a piece of code, that relies on an abstract data structure (i.e. a list). We can define this structure in a header file <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/list.h">list.h</a>. Recall that an ADT doesn't include how it is implemented, just the operations. <br><br>
+
+We can now implement this ADT in a separate file. For example, we can either implement it using <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/linkedlist.c">linkedlist.c</a> or <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/arraylist.c">arraylist.c</a>. For example, if our <code>list.h</code> file looks like
+<pre><code class="c">#if !defined(LIST_H)
+#define LIST_H
+void create_list_from_data(void **p_list, int *data_arr, int size);
+void list_append(void *list, int new_elem);
+void list_insert(void *list, int new_elem, int index);
+void list_delete(void *list, int index);
+void list_free_all(void *list);
+int list_get(void *list, int index);
+#endif</code></pre> Then our <code>linkedlist.c</code> file needs to contain these functions. If we already have code (i.e. the earlier ones we wrote), we don't need to modify them. Instead, we can just create a new function that calls them in order to have the right form. For example,
+<pre><code class="c">void list_insert(void *list, int new_elem, int index)
+{
+    LL_insert((LL*)list, new_elem, index);
+}
+
+int list_get(void *list, int index)
+{
+    return LL_get(list, index);
+}</code></pre>
+Notice that the functions in <code>list.h</code> take in void pointers, because we want them to be as general as possible (i.e. could be implemented using either an array or linked list). These additional functions we write in <code>linkedlist.c</code> are just wrappers. One final note is that although we can cast the void pointer to the correct type <code>(LL*)</code>, it is not necessary.<br><br>
+
+We can do this for both <code>linkedlist.c</code> and <code>arraylist.c</code>, and when we want to compile our main program, we can choose to compile it with either <code>linkedlist.c</code> or <code>arraylist.c</code>. For example, we can run
+<pre><code class="language-bash">gcc linkedlist.c -c -o linkedlist.o</code></pre>
+to create the object file <code>linkedlist.o</code>. We can then compile <code>main.c</code> alongside <code>linkedlist.o</code> to create an executable. We can do this by running
+<pre><code class="language-bash">gcc main.c linkedlist.o -o main</code></pre>
+If we instead wanted to compile using the array list implementation, we can run
+<pre><code class="language-bash">gcc main.c arraylist.o -o main</code></pre>
+This has several advantages:
+<ul>
+  <li>Modularity and Reusability: When writing our main code, we don't have to worry about how certain functions are implemented. Also, if we already have code that can implement abstract data structures, we can just re-use them for future projects without changing too much!</li>
+  <li>Faster compilation: Using a precompiled object like <code>linkedlist.o</code> can save compilation time. Although this is not a big problem now, compilation time can be an issue for larger and more complex projects.</li>
+</ul>
 <br><br><br><br><br>
  
   </body>
