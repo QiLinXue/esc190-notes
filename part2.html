@@ -1171,7 +1171,7 @@ typedef struct node{
 
 typedef struct LL{
     node *head;
-    int *size;
+    int size;
 } LL;
 
 void create_node(node **p_n, int data)
@@ -1251,7 +1251,7 @@ In the previous lecture, we defined the linked list struct as follows:
 
 typedef struct LL{
   node *head;
-  int *size;
+  int size;
 } LL;
 </code></pre>
 We also talked about how to implement insertions conceptually. We can implement it as follows:
