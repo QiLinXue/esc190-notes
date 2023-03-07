@@ -470,8 +470,8 @@ What do I need to know and don't know?
   <li>Know: Python and C memory model</li>
   <li>Don't Know: Machine Code and how to use <code>ctypes</code> in Python</li>
 </ul>
-<h2 id="L14-valgrind">Python Memory Model and Valgrind</h2>
-<h3 id="L14-memory-model">Python Memory Model</h3>
+<h1 id="L14">L14: Python Memory Model and Valgrind</h1>
+<h2 id="L14-memory-model">Python Memory Model</h2>
 Let us review the previous section on the Python memory model and refer to the previous code. When we assign values to variables, we create a variable table and a memory table. So <code>x = 11.0</code> will give us
 <pre>-----------
 Variable Table
@@ -501,7 +501,7 @@ x1 = 6
 print(x + y == x1 + y)
 </code></pre>
 will give us <code>False</code> because these are no longer connected to the literal <code>11.0</code> which is what started this whole mess.
-<h3 id="L14-valgrind">Valgrind</h3>
+<h2 id="L14-valgrind">Valgrind</h2>
 We can use valgrind to debug problems with memory issues. There are four ways to run valgrind:
 <ul>
   <li>Linux: Can be installed</li>
@@ -585,7 +585,7 @@ This error message tells us that the error occurred in the main function, and it
 ==3471== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)</pre>
 which tells us how many bytes are lost. In real applications, this example is not particularly helpful to us as it only tells us thee memory that is lost at the end of the program, and most systems automatically clean up the memory once the program is finished running. However, for continuously running programs, it is important to make sure there are no memory leaks. 
 
-<h1 id="L15-best-practices">L15: Best Practices</h1>
+<h1 id="L16">L16: Best Practices</h1>
 Follow these three principles:
 <ul>
   <li>Break down each task into smaller sub-tasks</li>
@@ -593,7 +593,7 @@ Follow these three principles:
   <li>When debugging, debug line by line.</li>
 </ul>
 The examples in this lecture will attempt to demonstrate these practices. Just note that because of how the lecture is structured (i.e. it walks through the developement process), it is difficult to faithfully reflect the lecture. 
-<h2 id="L15-example-15">Walkthrough of Lab Question</h2>
+<h2 id="L16-example-15">Walkthrough of Lab Question</h2>
 This is question 2 of Lab 4. Suppose we have a text file that lists several (not necessarily the below) constants, i.e. \(g=9.8\), \(e=2.72\), \(G=0.0000000000667\), and \(pi=3.14\) and we wish to compute the sum. How can we do this?
 <br><br>
 
@@ -767,7 +767,7 @@ However, if we try to this this code, we get \(12.148\) instead of \(12.528\). W
   str++;
 }</code></pre>
 and now it will work. See <a href="data.txt">data.txt</a> and <a href="read_doubles.c">read_doubles.c</a> for the full code and test cases.
-<h1 id="recursion">L16: Memory Model Review for Structs</h1>
+<h1 id="L17">L17: Memory Model Review for Structs</h1>
 Consider the following code, which creates a student struct and attempts to change the name:
 <pre><code class="C">#include &lt;stdio.h&gt
 #include &lt;string.h&gt
@@ -955,7 +955,7 @@ After running <code>change_name_right_b()</code> we get the following memory tab
   </tbody>
 </table>
 Note that in this function, the function first creates <code>'c','\0'</code> somewhere in memory and then uses the <code>strcpy</code> function to copy the string to the address of <code>s.name</code>. It is also important to remember that 
-<h2 id="L16-equivalent">C equivalent of Python Code</h2>
+<h2 id="L17-equivalent">C equivalent of Python Code</h2>
 Suppose we have the following Python code:
 <pre><code class="python">def change_name(s):
   s[0] = "b"
@@ -1091,8 +1091,8 @@ which corresponds to the following memory table after properly setting up the st
   </tbody>
 </table>
 Now we can change the name of the student in the <code>change_name</code> function. We pass in <code>p_s</code> which is <code>56</code>, the address where the student is stored. We then access the name of the student via <code>p_s->name</code> and set it equal to <code>"b"</code>. Note that if we wrote <code>'b'</code> instead, there would be a segmentation fault when we try to later print it, since <code>'b'</code> corresponds to a character and <code>"b"</code> corresponds to an address (i.e. it points to the first character of a string).
-<h1 id="L17-Consts">L17: Consts and Linked Lists</h1>
-<h2 id="L17-Const">The const keyword</h2>
+<h1 id="L18">L18: Consts and Linked Lists</h1>
+<h2 id="L18-Const">The const keyword</h2>
 <ul>
   <li><code>const</code> indicates that a value is not to be changing. Changing a <code>const</code> value could result in a compilation warning or warning. The intended purpose is to help catch errors in the code earlier. Consider:
 <pre><code class="C">const char c = 42;
@@ -1135,7 +1135,7 @@ since <code>p_s->name[0],p_s->name[1],</code> etc. are read-only (cannot change 
     p_s->name = "b";
 }</code></pre>
 is fine since we are not changing the value at the address, but rather the address itself.
-<h2 id="L17-Linked-Lists">Linked Lists</h2>
+<h2 id="L18-Linked-Lists">Linked Lists</h2>
 Motivation: We cannot dynamically add an element to an existing array or block of memory easily, as there could be no space there! The only option we have is to re-allocate everything to a new location with enough space. This is inefficient, especially for larger arrays. Instead, we can use a special data structure called a <b>linked list</b>.
 <ul>
   <li>A linked list consists of a data structure called a <code>node</code>, which consists of the following information:</li>
@@ -1146,7 +1146,7 @@ Motivation: We cannot dynamically add an element to an existing array or block o
   <li>We can then make an array by creating a chain of these nodes, where we can find the next node by following the <code>next</code> pointer. While this uses up more space than a regular array, it has the benefit of preventing re-allocating everything. For example, if we want to add an element to the end of the list, we can simply create a new node and set the <code>next</code> pointer of the last node to point to the new node (+ a minor detail we'll touch on in a bit). </li>
   <li>See the <a href="https://www.cs.toronto.edu/~guerzhoy/190/lec/W07/LL.pdf">lecture slides</a> for a visual of linked lists and their operations.</li>
 </ul>
-<h2 id="L17-LL-operations">Linked List Operations</h2>
+<h2 id="L18-LL-operations">Linked List Operations</h2>
 We want to implement the following operations: Inserting, Removing, and Searching.
 <ul>
   <li>Inserting: Suppose we already have a pointer to a node, and we wish to insert a node after that. What we can do is create this new node, and set its <code>next</code> pointer to point to the node that the original node pointed to. Then, we can set the original node's <code>next</code> pointer to point to the new node we just created.</li>
@@ -1158,7 +1158,7 @@ We want to implement the following operations: Inserting, Removing, and Searchin
   </li>  
 </ul>
 In summary, we can delete and insert nodes in constant time, which is faster than array operations which are O(n). However, getting the <code>i</code>th node is linear time, while we can do that in constant time for arrays.
-<h2 id="L17-LL-implementation">Linked List Implementation</h2>
+<h2 id="L18-LL-implementation">Linked List Implementation</h2>
 We can implement the linked list as follows:
 <pre><code class="c">#include &lt;stdio.h&gt
 #include &lt;string.h&gt
@@ -1227,7 +1227,7 @@ Here are some observations:
 </li>
 <li>we need to use pointers to pointers because we want to be able to modify the value of the <code>LL</code> pointer (i.e. the memory address it points to), rather than just the value of the data it points to.</li>
 </ul>
-<h1 id="L18">L18: Abstract Data Type</h1>
+<h1 id="L19">L19: Abstract Data Type</h1>
 An <b>abstract data type</b> (ADT) is any collection of values, together with operations on those values. For example:
 <ul>
   <li><code>ints</code> with operations <code>+,-*,/,%</code></li>
@@ -1242,7 +1242,7 @@ Example: Consider a <code>list</code> which is an ordered collection of data ite
   <li><code>Get(list, i)</code>: return the item at index <code>i</code> of <code>list</code>.</li>
 </ul>
 We define this ADT very abstractly, such that we only describe the outcome of each operation, but not how to implement it. For example, lists can be implemented using arrays, but it can also be implemented using linked lists.
-<h2 id="L18-LL-insert">Insert for Linked List</h2>
+<h2 id="L19-LL-insert">Insert for Linked List</h2>
 In the previous lecture, we defined the linked list struct as follows:
 <pre><code class="c">typedef struct node{
   int data;
@@ -1307,11 +1307,11 @@ Note that we deal with a few edge cases:
   </li>
 </ul>
 In the other cases, we first need to traverse to the desired index. Because this is not an array, we need to follow the linked list via the <code>next</code> pointers. Once we reach the desired index, we can update the <code>next</code> pointers of the new node and the node before it. Similar to above, the order of updating the <code>next</code> pointers matter!
-<h2 id="L18-LL-remove">Remove and Get for Linked List</h2>
+<h2 id="L19-LL-remove">Remove and Get for Linked List</h2>
 The code to remove and get for linked lists can be found <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/linkedlist.c">here</a> and is very similar to the code for insert. For deletion, we just need to remember to update the <code>next</code> pointer of the node before the one we are deleting, and freeing up the memory. Like most cases, the order here is important.
 
 Getting is actually partially implemented in insertion and deletion, as we need to find the <code>i</code>th element. Error handling for all three functions are also similar.
-<h2 id="L18-Coding-Practices">Good Coding Practices</h2>
+<h2 id="L19-Coding-Practices">Good Coding Practices</h2>
 Suppose you have a piece of code, that relies on an abstract data structure (i.e. a list). We can define this structure in a header file <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/list.h">list.h</a>. Recall that an ADT doesn't include how it is implemented, just the operations. <br><br>
 
 We can now implement this ADT in a separate file. For example, we can either implement it using <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/linkedlist.c">linkedlist.c</a> or <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/arraylist.c">arraylist.c</a>. For example, if our <code>list.h</code> file looks like
