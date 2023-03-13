@@ -1447,6 +1447,89 @@ The while loop is the only thing we need. There are a few things to note here:
   <li>The notation <code>*dest_write++ = *s++</code> tells us to assign the value of <code>*s</code> to <code>*dest_write</code>, then the <code>++</code> operator tells us to increment both pointers AFTER the assignment happens.</li>
 </ul>
 While this works, it is usually not a good practice as you have to be very careful about the order of operations and think about things. It's included here for you to understand it exists and see it once, but please don't use this in your code when you could write more readable code in just a few extra lines.
+<h1 id="L21">L21: Linked Lists II</h1>
+In this lecture, we will discuss how to implement a linked list in Python. Most of the time, you won't need to use a linked list in Python (we'll see an example next Monday), but it is still important to understand how linked lists work, and the work done in this lecture will be useful for implementing other data structures in Python for the rest of this course. The advantage of Python over C is pedagogical here, we want to focus on the data structure and not the specific implementation details.<br><br>
+
+If you are not familiar with classes, please see the last part of L19. Consider the Node class,
+<pre><code class="python">class Node:
+  def __init__(self, value):
+      self.value = value
+      self.next = None
+  
+  def __str__(self):
+      return f"{self.value}"</code></pre>
+By default, we have set <code>self.next = None</code> to indicate that the next node is not yet defined. We can then create a linked list by creating a series of nodes and linking them together. For example,
+<pre><code class="python">if __name__ == '__main__':
+  n1 = Node(12)
+  n2 = Node(15)
+  n3 = Node(500)
+
+  n1.next = n2
+  n2.next = n3</code></pre>
+Recall that in the Python memory model, values are not copied. Everything is passed by reference. Therefore, something like <code>n1.next = n2</code> means we make <code>n1.next</code> refer to the address of <code>n2</code> (so they are treated as the "same" thing). In C, the analogy would be
+<pre><code class="c">node *n1 = create_node(12)
+node *n2 = create_node(15)
+n1->next = n2;
+</pre></code>
+where the function <code>create_node()</code> performs the memory allocation for you, which is what Python is doing behind the scenes. We can also make a linked list class and include some functions. For example,
+<pre><code class="python">class LinkedList:
+  def __init__(self):
+      self.head = None
+  
+  def get_i(self, i):
+      # return the value at index i
+      cur = self.head
+      for j in range(i):
+          cur = cur.next
+      return cur.value
+
+  def append(self, value):
+      '''Add a new node with the value value to the end of the list'''
+      # Create a new node
+      new_node = Node(value)
+      print(new_node)
+
+      if self.head == None:
+          self.head = new_node
+      else:
+          # Find the last node
+          cur = self.head
+          while cur.next != None:
+              cur = cur.next
+          cur.next = new_node
+  
+  def insert(self, value, i):
+      '''Insert a node with the value value at index i'''
+      new_node = Node(value)
+
+      if i == 0:
+          new_node.next = self.head
+          self.head = new_node
+      else:
+          cur = self.head
+          for j in range(i-1):
+              cur = cur.next
+          new_node.next = cur.next
+          cur.next = new_node
+
+  def __str__(self):
+      cur = self.head
+      s = ""
+      if(cur == None):
+          return "Empty list :("
+      
+      while cur != None:
+          s += str(cur) + " -> "
+          cur = cur.next
+      return s[:-4] # remove last arrow</code></pre>
+Note that we didn't do anything new here. We took the existing code we had in L18 and transformed it into Python equivalents. The only new thing is the <code>__str__</code> function, which allows us to easily print out the linked list. For this function we have two cases: if the list is empty, we print something, and if the list is non-empty we print out the values of each node, connected with the -> symbol. We can then test our code,
+<pre><code class="python">if __name__ == '__main__':
+  LL = LinkedList()
+  LL.append(3)
+  LL.append(50)
+  LL.append(100)
+
+  print(LL)</code></pre>
 <br><br><br><br><br>
  
   </body>
