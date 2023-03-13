@@ -1346,6 +1346,107 @@ This has several advantages:
   <li>Modularity and Reusability: When writing our main code, we don't have to worry about how certain functions are implemented. Also, if we already have code that can implement abstract data structures, we can just re-use them for future projects without changing too much!</li>
   <li>Faster compilation: Using a precompiled object like <code>linkedlist.o</code> can save compilation time. Although this is not a big problem now, compilation time can be an issue for larger and more complex projects.</li>
 </ul>
+<h2 id="L19-Python">Python Classes</h2>
+Structures in C are similar to classes in Python (Classes in Python are actually much much more powerful, but that's not the point in this section). We can define a <code>Student</code> class in Python as follows,
+<pre><code class="language-python">class Student:
+  def __init__(self, name, gpa):
+      self.name = name
+      self.gpa = gpa
+  
+  def __str__(self):
+      return self.name + ": " + str(self.gpa)
+if __name__ == "__main__":
+  s = Student('Fred', 3.7)
+  print(s.name, s.gpa)
+</code></pre>
+Here, <code>__str__</code> is a built-in function, and we can call it via either:
+<pre><code class="python">s.__str__()
+Student.__str__(s)
+</code></pre>
+Here, the first line is just shorthand notation for the second line. What makes this built-in function useful is that we can call <code>print(s)</code> and it will treat this as <code>print(s.__str__())</code> instead.<br><br>
+
+We can also write a function to compare two classes, so that we can use operators such as <code><</code>, <code>></code>, and <code>==</code>. For example,
+<pre><code class="language-python">class Student:
+  def __init__(self, name, gpa):
+      self.name = name
+      self.gpa = gpa
+  
+  def __str__(self):
+      return self.name + ": " + str(self.gpa)
+  
+  def __lt__(self, other):
+      # Return True if self has lower gpa than other
+      # If GPAs are tied, compare names
+
+      if self.gpa < other.gpa:
+        return True
+      elif self.gpa == other.gpa:
+        return self.name < other.name
+      else:
+        return False
+if __name__ == "__main__":
+  fred = Student('Fred', 3.7)
+  bob = Student('Bob', 2.0)
+  print(Student.__lt__(fred, bob))
+  print(fred < bob)
+</code></pre>
+Recall that this is very similar to the compare function we wrote for <code>qsort.</code> Because we can compare different students, we can also sort them using the default sorted function in Python. For example,
+<pre><code class="language-python">L = [Student("Fred", 3.7"), Student("Bob", 3.7), Student("Alice", 3.9)]
+L.sort()
+print(L) # [Bob: 3.7, Fred: 3.7, Alice: 3.9]
+</code></pre>
+will allow us to sort and print out the list of students in a very convenient way (using both the custom print and compare functions we wrote)!
+
+Note that this is a more flexible method of sorting classes in Python. The "traditional" way (for simple comparison functions), we will write a function to get a numerical value from the class and sort using that key. For example,
+<pre><code class="python">def get_name(s):
+  return s.name
+L.sort(key=get_name)
+</code></pre>
+will sort the list of students in <code>L</code> alphabetically. Alternatively, we can use anonymous functions (lambda functions) which we can write in one line to save space. For example,
+<pre><code class="python">L.sort(key=lambda s: s.name)</code></pre>
+achieves the same purpose.<br><br>
+
+However, it is difficult (but not impossible) to modify the "traditional" way and come up with a way to map a more complicated comparison function to a numerical value. Note: comparison functions can be as complex as we want, but they need to be <i>transitive</i> in order to get meaningful results.
+
+
+
+
+
+<h1 id="L20">L20: Precedence</h1>
+Recall the standard order of operations for arithmetic expressions. For example,
+\[1 + 2 * 8 = 17\]
+and C will treat this completely normally. However, there are some unintuitive cases when dealing with other operators in C, which we will discuss in this lecture.
+<h2 id="L20-plus-plus">++ Operator</h2>
+Recall the <code>++</code> operator, which increments a variable by 1. Specifically, it is a post increment operator, meaning that it increments the variable after it is evaluated. For example, consider the following code,
+<pre><code class='c'>int a = 6;
+int b = 7 + a++; // make b = 7+a, and then increment a by 1
+</code></pre>
+Note that adding parentheses here doesn't matter, since the <code>++</code> operator is already the highest precedence (see <a href="https://en.cppreference.com/w/c/language/operator_precedence">precedence list</a>). Therefore, the code 
+<pre><code class='c'>int a = 6;
+int b = 7 + (a++); // make b = 7+a, and then increment a by 1
+</code></pre>
+will give the same behaviour, which is not intuitive at first! Now consider something similar,
+<pre><code class='c'>char *s = "hello";
+printf("%c", *(s++)); // incrementing the address 
+                      // what happens with just *s++
+printf("%c", (*s)++); // incrementing the value at address s
+                      // 'h' becomes 'i'
+</code></pre>
+The first case is what happens if we don't have any parentheses at all (since <code>++</code> has highest precedence). Note that the second case here may lead to a segmentation fault.<br><br>
+
+This notation can be very useful, and can be used to write certain functions in a very fast way (see L7). For example, if we want to copy a string, we can do the following:
+<pre><code class='c'>char *s = "hello";
+char dest[10];
+char *dest_write = dest;
+// want to copy string s into dest
+while(*dest_write++ = *s++);
+</code></pre>
+The while loop is the only thing we need. There are a few things to note here:
+<ul>
+  <li>The value of an "assignment relation" is equal to the value assigned. Therefore, the while loop will continue to run as long as <code>*s</code> is not <code>NULL</code>. In general, any non-zero value is true and any zero value (including NULL) is false.</li>
+  <li>The notation <code>*dest_write++ = *s++</code> tells us to assign the value of <code>*s</code> to <code>*dest_write</code>, then the <code>++</code> operator tells us to increment both pointers AFTER the assignment happens.</li>
+</ul>
+While this works, it is usually not a good practice as you have to be very careful about the order of operations and think about things. It's included here for you to understand it exists and see it once, but please don't use this in your code when you could write more readable code in just a few extra lines.
 <br><br><br><br><br>
  
   </body>
