@@ -9,6 +9,7 @@ class Node:
 class LinkedList:
     def __init__(self):
         self.head = None
+        self.tail = None
     
     def get_i(self, i):
         # return the value at index i
@@ -31,6 +32,8 @@ class LinkedList:
             while cur.next != None:
                 cur = cur.next
             cur.next = new_node
+        
+        self.tail = new_node
     
     def insert(self, value, i):
         '''Insert a node with the value value at index i'''
@@ -39,12 +42,9 @@ class LinkedList:
         if i == 0:
             new_node.next = self.head
             self.head = new_node
-        else:
-            cur = self.head
-            for j in range(i-1):
-                cur = cur.next
-            new_node.next = cur.next
-            cur.next = new_node
+        
+        self.tail.next = new_node
+        self.tail = new_node
 
     def __str__(self):
         cur = self.head
