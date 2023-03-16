@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YCY17GV3DB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YCY17GV3DB');
+</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <title>ESC190 Lecture Notes</title>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous"> -->
+
+    <!-- Bootstrap Style -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+
+    <!-- TOC CSS -->
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/bootstrap-toc.css">
+
+    <link rel="stylesheet" href="https://afeld.github.io/bootstrap-toc/assets/screen.css" media="screen" charset="utf-8">
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://afeld.github.io/bootstrap-toc/bootstrap-toc.js"></script>
+      
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+<script type="text/javascript">
+  (function (i, s, o, g, r, a, m) {
+    i["GoogleAnalyticsObject"] = r;
+    (i[r] =
+      i[r] ||
+      function () {
+        (i[r].q = i[r].q || []).push(arguments);
+      }),
+      (i[r].l = 1 * new Date());
+    (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m);
+  })(
+    window,
+    document,
+    "script",
+    "//www.google-analytics.com/analytics.js",
+    "ga"
+  );
+
+  ga("create", "UA-19048260-11", "auto");
+  ga("send", "pageview");
+
+  hljs.highlightAll();
+</script>
+</head>
+<body data-bs-spy="scroll" data-target="#toc">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+      <div class="col-sm-9">
+
+
+<h1 id="-esc190-lecture-notes">ESC190 Lecture Notes: Part 3<br>Advanced Data Structures and Algorithms</h1>
+    <p>See all lecture notes <a href="../">here</a>.</p>
+    </p>
+<h1 id="L22">L22: Stacks and Queues</h1>
+<h2 id="L22-stack">Stack ADT</h2>
+<div class="alert alert-success" role="alert"><br>
+    A <b>stack</b> is a collection of elements with the operations <code>push</code> and <code>pop</code>
+    <ul>
+        <li><code>push</code> inserts the elements into the collection</li>
+        <li><code>pop</code> removes the most <i>recently added element that's not yet removed and returns it</i></li>
+    </ul>
+</div>
+Intuitively, we can think of this as a stack of blocks. We can only add blocks to the top of this stack and remove it from the top. This is known as LIFO (last in first out). If we start with an empty list <code>[ ]</code> then run the following commands, we have:
+<ol>
+    <li><code>push(1)</code></li>
+    <li><code>push(50)</code></li>
+    <li><code>pop()</code> (returns 50)</li>
+    <li><code>push(100)</code></li>
+    <li><code>pop()</code> (returns 100)</li>
+    <li><code>pop()</code> (returns 1)</li>
+</ol>
+Note: Note that our "stack of blocks" analogy is an analogy of how we could implement a stack. It is a very natural way of implementing it, since if we put new items at the top of the stack, then popping them from the top automatically fulfills the requirement of removing the most recently added element.<br><br>
+
+However, we could have implemented a stack differently, since a stack is an ADT, and ADTs don't tell us the implementation details.
+<h2 id="L22-queue">Queue ADT</h2>
+<div class="alert alert-success" role="alert"><br>
+    A <b>queue</b> is a collection of elements with the operations <code>enqueue</code> and <code>dequeue</code>
+    <ul>
+        <li><code>enqueue</code> inserts the elements into the collection</li>
+        <li><code>dequeue</code> removes the <i>earliest added element that's not yet removed and returns it</i></li>
+    </ul>
+</div>
+The anlogy for queues is a physical queue (i.e. a line of people). If we have a queue of people waiting to get into the Praxis lecture, the first person in the queue is the first person to get in (and therefore leave the queue). This is known as FIFO (first in first out). An example starting with an empty list:
+<ol>
+    <li><code>enqueue(1)</code></li>
+    <li><code>enqueue(50)</code></li>
+    <li><code>dequeue()</code> (returns 1)</li>
+</ol>
+<h2 id="L22-implementation-stack">Implementation of Stack</h2>
+We can use a python list to act as a stack very naturally,
+<pre><code class="python">class Stack:
+    def __init__(self):
+        self.data = []
+    
+    def push(self, item):
+        self.data.append(item)
+    
+    def pop(self):
+        return self.data.pop()</code></pre>
+This is because the Python <code>pop()</code> already acts like the stack <code>pop()</code> operation. It removes the last element of the list and returns it. While the above works perfectly fine, for the sake of learning, we will implement a stack without using these default methods (which allows us to extend concepts to other ADT implementations). We have,
+<pre><code class="python">class Stack:
+    def __init__(self):
+        self.data = []
+    
+    def push(self, item):
+        self.data.append(item)
+    
+    def pop(self):
+        # return self.data.pop()
+        ret_val = self.data[-1]
+        del self.data[-1]
+        return ret_val
+
+if __name__ == '__main__':
+    s = Stack()
+    s.push(1)
+    s.push(50)
+    print(s.pop())
+    s.push(100)
+    print(s.pop())
+    print(s.pop())</code></pre>
+which will output <code>50, 100, 1</code> as we predicted earlier.
+<h2 id="L22-implementation-queue">Implementation of Queue</h2>
+I claim that this is trivial to do if we have the previous section. Why is this the case?
+<br><br>
+
+The reason is that the only difference between a stack and a queue is whether we choose to remove the most recent element or the earliest element. This means making a small change in the index is sufficient (i.e. <code>-1</code> to <code>0</code>)
+<pre><code class="python">class Queue:
+    def __init__(self):
+        self.data = []
+    
+    def enqueue(self, item):
+        self.data.append(item)
+    
+    def dequeue(self):
+        ret_val = self.data[0]
+        del self.data[0]
+        return ret_val
+
+if __name__ == '__main__':
+    s = Queue()
+    s.enqueue(1)
+    s.enqueue(50)
+    print(s.dequeue())
+    s.enqueue(100)
+    print(s.dequeue())
+    print(s.dequeue())</code></pre>
+which prints out <code>1 50 100</code> as expected.
+<h2 id="L22-complexity">Complexity</h2>
+This seems boring for such a simple data structure, but it is actually very exciting! First, note that the time complexity of <code>push</code> and <code>enqueue</code> is the same as the time complexity of appending to a list. This is \(\mathcal{O}(1)\) but it's not obvious why this is the case!
+<ul>
+    <li>If we were to implement this in C via an array, we can allocate extra memory such that writing to the array is \(\mathcal{O}(1)\). However, if we add enough elements to the array, then we run out of space and need to re-allocate memory, making the worst case scenario \(\mathcal{O}(n)\).</li>
+    <li>However in practice, this worst case scenario above isn't actually that bad. If every time we run out of memory, we double the allocated space, then there's only so many times we need to reallocate space (since exponents grow very fast). Note that this is a very common strategy people use.</li>
+</ul>
+In Python, lists are implemented <a href="https://wiki.python.org/moin/TimeComplexity">internally</a> as an array, so the above analysis applies as well.<br><br>
+
+Retrieving elements in an array by index and deleting the last element of an array are both \(\mathcal{O}(1)\) so the time complexity of <code>pop</code> is \(\mathcal{O}(1)\)<br><br>
+
+However, <code>dequeue</code> is \(\mathcal{O}(n)\). This is because once the item at index 0 is removed, the item that used to be at index 1 needs to be at index 0. In order for this to happen, the rest of the elements need to be shifted to the left, so a total of 10 operations are done.
+<h2 id="L22-improvement">Improving Queues</h2>
+Our naive implementation of a queue is very inefficient. Intuitively, a simple task such as removing the leftmost element can be done in constant time, so how can we fix this?<br><br>
+
+We can use linked lists!
+<center>
+    <img src="diagrams/linked_list_queue.png.jpg" class="img-fluid" alt="...">
+</center>
+Refer to the above diagram. The basic idea is that if we remove the first element, instead of shifting everything to the left, we can just change the <code>HEAD</code> pointer of the linked list to direct to the second element, which takes \(\mathcal{O}(1)\) time. We can implement this as follows:
+<pre><code class="python">import linkedlist
+
+class LLQueue:
+    def __ini__(self):
+        self.data = linkedlist.LinkedList()
+    
+    def enqueue(self):
+        self.data.append(item)
+        
+    def dequeue(self):
+        ret_value = self.data.head.value
+        self.data.head = self.data.head.next</code></pre>
+where <code>linkedlist</code> is the code we wrote in Lecture 21. Note that there is one problem. In order to append, we had to traverse the entire linked list, so the time complexity for <code>enqueue</code> is now \(\mathcal{O}(n)\). We can fix this by modifying the linked list implementation to keep track of the tail of the linked list, so that appending is \(\mathcal{O}(1)\). That is,
+<pre><code class="python">class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None</code></pre>
+Note that we now have to edit our existing functions so that it updates the tail pointer as well when we append and insert. See (and visualize) the changes that were made <a href="https://github.com/QiLinXue/esc190-notes/commit/3fe8daba4b99358152a34e187fcba656932ccba6">here!</a> The updated linked list file is
+<pre><code class="python">class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+    
+    def get_i(self, i):
+        # return the value at index i
+        cur = self.head
+        for j in range(i):
+            cur = cur.next
+        return cur.value
+
+    def append(self, value):
+        '''Add a new node with the value value to the end of the list'''
+        # Create a new node
+        new_node = Node(value)
+        
+        if self.head == None:
+            self.head = new_node
+            self.tail = new_node
+
+        self.tail.next = new_node
+        self.tail = new_node
+    
+    def insert(self, value, i):
+        '''Insert a node with the value value at index i'''
+        new_node = Node(value)
+
+        if i == 0:
+            new_node.next = self.head
+            self.head = new_node
+        
+        else:
+            cur = self.head
+            for j in range(i-1):
+                cur = cur.next
+            new_node.next = cur.next
+            cur.next = new_node
+        
+        if new_node.next == None:
+            self.tail = new_node
+
+    def __str__(self):
+        cur = self.head
+        s = ""
+        if(cur == None):
+            return "Empty list :("
+        
+        while cur != None:
+            print(cur)
+            s += str(cur) + " -> "
+            cur = cur.next
+        return s[:-4] # remove last arrow
+</code></pre>
+Note that the lecture had a minor typo. In the lecture, <code>self.tail</code> was initially set to <code>None</code> but it was never initialized, so running something like <code>self.tail.next = new_node</code> would lead to an error. <br><br>
+
+This is one very practical case where linked lists come in handy. The native implementation of queues in Python is via <code>collections.deque</code> which does it via doubly linked list, similar to what we constructed above.
+        <br><br>
+<br><br><br><br><br>
+</div>
+    </div>
+  </body>
+</html>
