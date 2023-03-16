@@ -22,17 +22,12 @@ class LinkedList:
         '''Add a new node with the value value to the end of the list'''
         # Create a new node
         new_node = Node(value)
-        print(new_node)
-
+        
         if self.head == None:
             self.head = new_node
-        else:
-            # Find the last node
-            cur = self.head
-            while cur.next != None:
-                cur = cur.next
-            cur.next = new_node
-        
+            self.tail = new_node
+
+        self.tail.next = new_node
         self.tail = new_node
     
     def insert(self, value, i):
@@ -43,8 +38,15 @@ class LinkedList:
             new_node.next = self.head
             self.head = new_node
         
-        self.tail.next = new_node
-        self.tail = new_node
+        else:
+            cur = self.head
+            for j in range(i-1):
+                cur = cur.next
+            new_node.next = cur.next
+            cur.next = new_node
+        
+        if new_node.next == None:
+            self.tail = new_node
 
     def __str__(self):
         cur = self.head
