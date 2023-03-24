@@ -319,7 +319,9 @@ I claim that the formula for the number of digits of \(n\) is given by
 \[n = a_{k-1}10^{k-1} + a_{k-2}10^{k-2} + \cdots + a_110^1 + a_.\]
 where the leading coefficient \(a_{k-1} \neq 0\). To double-check this, note that \(15 = 1 \times 10^1 + 5\) so the leading power is \(k-1\). Note that:
 \[10^{k-1} \le n < 10^k.\]
-It is important that the right inequality is strict! Since the logarithm is a monotonically increasing function, we have
+It is important that the right inequality is strict! This is because \(10^k\) has \(k+1\) digits while \(n\) only has \(k\) digits. For those who want more rigour, note that each \(a_i\) is smaller or equal to \(9\) so we can bound \(n \le \sum_{i=0}^{k-1} 9 \cdot 10^{i}\).<br><br>
+
+Since the logarithm is a monotonically increasing function, we have
 \[\log_{10}(10^{k-1}) \le \log_{10}(n) < \log_{10}(10^k)\]
 or equivalently, 
 \[k-1 \le \log_{10}(n) < k.\]
@@ -410,6 +412,9 @@ Finally, we need to be able to shift all the digits over. At least, this was my 
         
         // First digit is 1
         pyint->digits[0] = 1;
+
+        // Last digit is 0
+        pyint->digits[pyint->num_digits - 1] = 0;
     }
 }</code></pre>
 <h2 id="L22-add">Implementing Add</h2>
@@ -431,6 +436,212 @@ Note: we did not get to finish this in class, but here are some ideas for soluti
 </li>
 </ul>
 Note: This section will get updated depending on the direction of Friday's class.
+
+<h1 id="L25">L25: Heaps and Priority Queue</h1>
+<div class="alert alert-success" role="alert"><br>
+    A <b>priority queue</b> is a queue where the first element dequered is the one with the highest priority.
+    <ul>
+        <li><code>Insert(S,x)</code> adds a new element with priority <code>x</code> to priority queue <code>S</code></li>
+        <li><code>min(S)</code> returns the element with the smallest value from the priority queue</li>
+        <li><code>extract_min(S)</code> removes and returns the element with the smallest value from the priority queue</li>
+    </ul>
+</div>
+This has many uses. It can simulate real-world systems queues organized by priority (i.e. patients in a hospital or files requested from a server). Alternatively, it can be used in searching algorithms (i.e. in games) such as A* (A Star).
+<h2 id="L25-Naive-Implementation">Slow Method 1</h2>
+The naive implementation is to store everything in an (unsorted) array. Every time that we wish to extract the minimum, we have to search through the entire array to find the minimum. See the below code,
+<pre><code class="python">class PriorityQueueSlow:
+    def __init__(self):
+        self.data = []
+        self.size = 0
+    
+
+    def insert(self, value):
+        self.data.append(value)
+        self.size += 1
+    
+    def extract_min(self):
+        if self.size == 0:
+            return None
+
+        cur_min = self.data[0]
+        cur_min_loc = 0
+        for i in range(1, self.size):
+            if self.data[i] < cur_min:
+                cur_min = self.data[i]
+                cur_min_loc = i
+
+        del self.data[cur_min_loc]
+        self.size -= 1
+        return cur_min</code></pre>
+What is the time complexity? Inserting is effectively O(1) as discussed last time, and extracting the minimum is O(n), since we need to search through the entire array.
+<h2 id="L25-Naive-Implementation-2">Slow Method 2</h2>
+One idea is to keep the data sorted, so we don't need to look for the minimum. This is not enough though: we want to ensure we are deleting the last element of the array (which takes constant time), not the first one (which takes linear time, due to the need to shift all the elements over). Therefore, we need to keep <code>self.data</code> sorted in non-increasing order. We have,
+<pre><code class="python">class PriorityQueueSlow2:
+    def __init__(self):
+        self.data = []
+        self.size = 0
+    
+    def insert(self, value):
+        i = 0
+        while i < self.size:
+            if value > self.data[i]:
+                break
+            i += 1
+
+        # i is the index before which we can insert value
+        self.data.insert(i, value)
+        self.size += 1
+    
+    def extract_min(self):
+        if self.size == 0:
+            return None
+        self.size -= 1
+        return self.data.pop() # O(1)</code></pre>
+Here, linear search is being done to find the index to insert the new element, so while <code>extract_min()</code> now takes constant time, inserting takes linear time. Someone bright might claim that we can use binary search to find the index to insert the new element, but this does not solve the problem. This is because inserting also takes linear time, as everything needs to be shifted.<br><br>
+
+That's a bit of a bummer! It seems like no matter how we structure things, we cannot escape the \(\mathcal{O}(n)\) complexity of inserting/removing an element. This introduces the concept of heaps.
+<h2 id="Heaps">Heaps</h2>
+We can implement a more efficient algorithm using heaps. But to understand heaps, we first need to introduce <b>trees.</b>
+<div class="alert alert-success" role="alert">
+    A <b>tree</b> is a collection of nodes, where each node has two children, except the <b>leaves</b> (nodes at the bottom with no children), and every leaf is as far left as possible on the last level.  
+</div>
+Usually, we deal with binary trees (meaning each node has at most 2 children). For example, the below is a <b>complete</b> binary tree (a tree where all nodes except leaves have two children and each leaf is as far left as possible).
+<center>
+    <img src="assets/complete_tree.jpg" />
+</center>
+For heaps (specifically a min-heap), we desire a <b>heap order property</b> which means that each node is smaller than its children. A heap is a complete graph and when we add a new element, we first add it to the leftmost position in the bottom row.<br><br>
+
+In order to satisfy the heap order property, we <i>percolate</i> the node upwards, exchanging it with the parent if it is smaller than the parent. For example, if we add 14 to a heap (boxed), we can swap it with the parent until the heap order property is satisfied, as shown below.
+<center>
+    <img src="assets/up-heap.jpg" style="width:90%"/>
+</center>
+One way to implement a heap is to use a linked list where each node has a <code>left_child</code> and <code>right_child</code> and while this is more intuitive, it is often faster to implement it via an array and use mathematics to perform index gymnastics. Note that this only works because a heap is a complete binary tree. We store the first tree in this section as
+\[ [\_, a, b,c,d,e,f,g,h,i,j,k,l,m,\dots] \]\
+where the first index is left blank for convenience, which will be made clear in just a bit. Given a node at index \(i\) we can get the parent and the children via the following formulas:
+\[\text{parent}(i) = i/2\]
+\[\text{left}(i) = 2i\]
+\[\text{right}(i) = 2i+1\]
+Why does this work? First note that the index of the leftmost element of each row is given by \(2^0,2^1,2^2,\dots\) since the binary tree is complete. So <code>a</code> has index 1, <code>b</code> has index 2, <code>d</code> has index 4, and <code>h</code> has index 8. These nice numbers are only possible since we are neglecting index 0, which is empty in our array.
+<div class="alert alert-dark" role="alert">
+<i>Proof:</i> TBA</div>
+<h1 id="L26">L26: Implementing Heaps and Dynamic Programming</h1>
+<h2 id="L26-insert">Insert</h2>
+How do we insert an element into a heap? We have the pseudocode
+<pre><code class="pseudocode">Insert(x):
+    k=n+1
+    pq[k] = x
+    while k > 1 and pq[k/2] > pq[k]
+        swap(pq[k], pq[k/2])
+        k = k / 2
+</code></pre>
+To think of this, treat <code>k</code> as current node, and treat <code>k/2</code> as parent node (by the formulas given in the previous lecture). Then the rest is just applying the <i>percolation</i> described earlier.
+<h2 id="L26-extra-min">Extracting the Minimum</h2>
+Getting the minimum element is very easy. It's the first element! (i.e. at index 1.) However, how can we remove it and still maintain a binary tree where the heap-order property is satisfied?<br><br>
+
+To do so, we apply a clever trick. First, replace the first element with the last element (but remember to save it first!) The heap-order property is not satisfied, but we can <i>percolate</i> this element down until the heap-order property is satisfied. Note that there is a subtle difference:
+<ul>
+    <li>When percolating up, only one comparison needs to be made. We need to compare it with the left child and the right child. If it's bigger than either one, then we swap it with the one it's bigger than.</li>
+    <li>It is possible for the current node we're percolating down to be bigger than both children. In that case, we should swap it with the smaller child, since the smaller child can be a parent of the larger one.</li>
+</ul>
+The pseudocode is given by,
+<pre><code class="pseudocode">extract_min():
+    min = pq[1]
+    swap(pq[1], pq[n])
+    n = n - 1
+    k = n
+    while(2*k <= n):
+        j = 2*k
+        if j < n and pq[j] > pq[j+1]:
+            j = j + 1
+        if pq[k] <= pq[j]:
+            break
+        swap(pq[k], pq[j])
+        k = j
+    return min
+</code></pre>
+In the above code, the <code>j < n and pq[j] > pq[j+1]</code> condition ensures that the current node has two children and if it does, selects the index of the smaller one. One example of how this works is shown below, where we have already replaced the smallest element with the last element, which in this case is 32.
+<img src="assets/down-heap.jpg" style="width:90%"/>
+The python implementation can be found <a href="https://www.cs.toronto.edu/~guerzhoy/190/labs/heaps.py">here.</a>
+<h2 id="L26-time complexity">Time Complexity</h2>
+We define the <b>height</b> \(h\) of a tree to be the longest path from a node to a leaf. Note that from a geometric series, we can bound the number of elements in a tree of height \(h\) by
+\[n \le 2^0 + 2^1 + \cdots + 2^{h} = 2^{h+1} - 1\]
+For a complete tree with height \(h\) the number of nodes must be greater than the maximum number of nodes for a tree with height \(h-1\), which gives 
+\[n > 2^0 + 2^1 + \cdots + 2^{h-1} = 2^{h} - 1\]
+For \(h \ge 1\) we have 
+\[h-1 \le \log_2(2^h-1) \le \log_2 n \le \log_2(2^{h+1}-1) < h+1\]
+where the middle inequality is due to the above inequalities we derived, and applying the fact that logarithms are monotonic. The inequalities at the two ends are due to the fact that 
+\[2^{h}/2 \le 2^{h} - 1\]
+and 
+\[2^{h+1} -1 < 2^{h+1}.\]
+Therefore, we have $\log(n) \sim h$ and thus since both inserting and extracting the minimum needing at most \(h\) swaps, the time complexity is 
+\[\mathcal{O}(h) = \mathcal{O}(\log(n)).\]
+<h2 id="L26-dynamic-programming">Dynamic Programming</h2>
+Dynamic programming is not a very well-defined term, but it encompasses a set of techniques for problem solving. Specifically, it breaks up a problem into sub-tasks and uses the results from those sub-tasks to solve the original problem. We start off with a simple question:
+<div class="alert alert-info" role="alert">
+    Compute the \(n^\text{th}\) Fibonacci number.
+  </div>
+  The naieve ESC180 implementation is via:
+<pre><code class="python">def fib(n):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n-1) + fib(n-2)
+</code></pre>
+While this works, it is extremely inefficient because it calculates the same values over and over again. This is because the function calls itself twice with the same argument in the recursive case. As a result, the time complexity of this implementation is exponential, which means it grows very quickly with increasing values of n.<br><br>
+
+To fix this problem, we use a technique called <b>memoization</b> (which is <i>not</i> a typo, but you can think of "memorization" as an analogy). This involves maintaining a table of values that were already computed so that we don't have to recompute them. We then have:
+<pre><code class="python">def fib(n, mem = {}):
+    if n in mem:
+        return mem[n]
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    mem[n] = fib(n-1, mem) + fib(n-2, mem)
+    return mem[n]
+</code></pre>
+Therefore, if we have already computed something, we don't have to go through an entire series of recursive calls! The time complexity of this implementation is now linear, because we only have to do \(n\) recursive calls. Note that this analysis assumes addition is constant in time, which is true for doubles, but may not be true for other data types (since fibonacci integers can increase exponentially)<br><br>
+
+We can also solve the same problem <b>without</b> recursion by having a list that gets updated as we go along. Specifically, we have
+<pre><code class="python">def fib_iter(int n):
+    fib_list = [0] * n
+    fib_list[0:2] = [0, 1]
+    for i in range(2, n + 1):
+        fib_list[i] = fib_list[i-1] + fib_list[i-2]
+    return fib_list[n]
+</code></pre>
+<div class="alert alert-info" role="alert">
+    <b>Follow-up question:</b> the size of this array is linear in <code>n.</code> Can you do this task in constant space (i.e. the size of the array does not depend on <code>m</code>?)
+  </div>
+  In general, for dynamic programming:
+  <ol>
+    <li>Divide a complex problem into a number of simpler overlapping problem.</li>
+    <li>Defined a relationship between solutions to more complex problems and solutions to simpler problems. This is known as a Bellman Equation.</li>
+    This is an important step. For the Fibonacci example, we had
+    \[ F_i = \begin{cases} 0&i=0 \\ 1 & i=1 \\ F_{i-1} + F_{i-2} & i \ge 2 \end{cases}\]
+    <li>Store solutions to each subproblem, solving each subproblem once (i.e. using <code>fib_list</code> to store solutions)</li>
+    <li>Use stored solutions to solve the original problem.</li>
+  </ol>
+  Now, suppose we had a harder problem.
+  <div class="alert alert-info" role="alert">
+    <b>Problem:</b> There are a row of <code>n</code> houses, each house can be painted with one of the three colors: red, blue or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+<br><br>
+The cost of painting each house with a certain color is represented by a <code>nx3</code> cost matrix. For example, <code>costs[0][0]</code> is the cost of painting house 0 with color red; <code>costs[1][2]</code> is the cost of painting house 1 with color green, and so on... Find the minimum cost to paint all houses.</div>
+Note that the above wording was stolen from a LeetCode <i>medium</i> problem, but encodes the same information as the problem in the lecture. (Generally, coding interviews will contain questions at this level, so it is good practice to do medium-level Leetcode problems fast if you are trying to get software engineering PEY positions at top companies.)<br><br>
+
+The subproblem we are trying to solve is the minimum cost to paint the \(i^\text{th}\) house. We can define the following relationship:
+\[
+\begin{align}
+R(i) &= cost(i,red) + min(G(i-1), B(i-1)) \\
+G(i) &= cost(i,green) + min(R(i-1), B(i-1)) \\
+B(i) &= cost(i,blue) + min(R(i-1), G(i-1)) \\
+Cost(i) &= min(R(i), G(i), B(i))
+\end{align}
+\]
+Here, \(R(i),G(i),B(i)\) are the optimal cost if the \(i^\text{th}\) house was painted red, green, or blue respectively. Note that these equations also reflect that no two adjacent houses can be painted the same colour.<br><br>
+
+From here, the python implementation is straightforward. See <a href="https://www.cs.toronto.edu/~guerzhoy/190/lec/W10/houses.py">here</a> for details.
         <br><br>
 <br><br><br><br><br>
 </div>
