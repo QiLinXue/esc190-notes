@@ -842,26 +842,56 @@ Suppose we have three denominations. Then to compute \(OPT(t)\) we need to compu
 At each level \(k\), we call at most \(3^k\) functions, where the maximum number of \(k\) is <code>target</code>. Therefore, the total number of calls we make is bounded by 
 \[3^0+3^1+3^2+\cdots + 3^t = \frac{3^{t+1}-1}{3-1} = \mathcal{O}(3^t).\]
 In general, the time complexity, without memoization, is \[\mathcal{O}(d^t)\] where \(d\) is the number of denominations and \(t\) is the target amount. If we use <i>memoization</i> we can save a lot of time. We have the code
-<pre><code class="python">def make_change(denom, target, memo=):
+<pre><code class="python">def make_change_recursive(denom, target, memo={}):
     if target in memo:
         # already computed, don't need to re-compute
         return memo[target]
 
-    if target == 0
+    if target == 0:
         memo[0] = 0
         return 0
-    if target < 0
-        memo[target] = None
-        return None
+
+    if target < 0:
+        memo[target] = np.inf
+        return np.inf
+
     min_coins = np.inf
     for d in denom:
-        cur_min = make_change(denom, target - d, memo) + 1
+        cur_min = make_change_recursive(denom, target - d, memo) + 1
         if cur_min < min_coins:
             min_coins = cur_min
     
     memo[target] = min_coins
+
     return min_coins</code></pre>
-The main idea is that we stop recursive calls whenever we've already computed the value, which we're storing in the dictionary <code>memo</code>. The time complexity analysis is left to the next class.
+The main idea is that we stop recursive calls whenever we've already computed the value, which we're storing in the dictionary <code>memo</code>. How can we get the actual solution here? We do a similar thing as before, where <b>every time we update the optimal number, we also update a dictionary that keeps track of the solution that corresponds to this optimal number (i.e. optimal path)</b>. This is a common trick in dynamic programming problems that will be used over and over again.
+<pre><code class="python">def make_change_recursive(denom, target, memo={},solns={}):
+    if target in memo:
+        return memo[target], solns[target]
+
+    if target == 0:
+        memo[0] = 0
+        solns[0] = []
+        return 0, []
+    if target < 0:
+        memo[target] = np.inf
+        solns[target] = None
+        return np.inf, None
+
+    min_coins = np.inf
+    optimal_soln = None
+    for d in denom:
+        cur_min, cur_soln = make_change_recursive(denom, target - d, memo, solns)
+        if cur_min < min_coins:
+            min_coins = cur_min + 1
+            optimal_soln = cur_soln + [d]
+
+    memo[target] = min_coins
+    solns[target] = optimal_soln
+
+    return min_coins, optimal_soln</code></pre>
+
+The time complexity analysis is left to the next class.
 <br><br>
 
 
