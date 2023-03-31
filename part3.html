@@ -523,7 +523,17 @@ where the first index is left blank for convenience, which will be made clear in
 \[\text{right}(i) = 2i+1\]
 Why does this work? First note that the index of the leftmost element of each row is given by \(2^0,2^1,2^2,\dots\) since the binary tree is complete. So <code>a</code> has index 1, <code>b</code> has index 2, <code>d</code> has index 4, and <code>h</code> has index 8. These nice numbers are only possible since we are neglecting index 0, which is empty in our array.
 <div class="alert alert-dark" role="alert">
-<i>Proof:</i> TBA</div>
+<i>Proof:</i> We first prove that \(\text{left}(i)=2i\). As we have already mentioned, the leftmost element of each row has index \(2^0,2^1,2^2,\dots\). Therefore, if \(i=2^{k}\), then it is clear that its left child is just the leftmost element of the next row, so for this case, we verify \(\text{left}(i)=2i\). Now we prove via induction that \(\text{left}(i)=2i\) for all \(i\).<br><br>
+
+Assume that this is true for some \(2^k \le i < 2^{k+1} - 1\). Then, the left child of \(i+1\) is located \(2\) to the right of the left child of \(i\). That is, 
+\[\text{left}(i+1) \overset{\#}{=} \text{left}(i) + 2 = 2i+2 = 2(i+1)\]
+where the equality given by \(\#\) is true via induction. We've already shown this is true for the base case \(i=2^k\) so we're done.<br><br>
+
+Note that this automatically implies that the formula \(\text{right}(i) = 2i+1\) is also true, since the right element has index 1 more than the left element. Note tha with the exception of \(i=1\), if \(i\) is even, then it is the left child of its parent, and if \(i\) is odd, then it is the right child of its parent. Thus, it remains to show that \(\text{parent}(i) = 2i\). This is easy if we consider the inverse of the above formula.<br><br>
+
+If \(i\) is even, then its parent is \(\text{left}^{-1}(i) = i/2\). If \(i\) is odd, then its parent is \[\text{right}^{-1}(i) = (i-1)/2 = i/2\]
+if we treat \(i/2\) as an operation that rounds down to the nearest integer (i.e. <code>i//2</code> in Python).
+</div>
 <h1 id="L26">L26: Implementing Heaps and Dynamic Programming</h1>
 <h2 id="L26-insert">Insert</h2>
 How do we insert an element into a heap? We have the pseudocode
@@ -892,6 +902,11 @@ The main idea is that we stop recursive calls whenever we've already computed th
     return min_coins, optimal_soln</code></pre>
 
 The time complexity analysis is left to the next class.
+<!-- <h2 id="L27-Optimality">BONUS: Greedy Algorithm</h2>
+The course calendar provides a link to a proof for the <a href="https://math.stackexchange.com/questions/2433735/proving-that-greedy-coin-change-algorithm-gives-optimal-solution-under-certain-c">greedy algorithm</a> for the case where the denominations all divide each other. However, this is not the most general case, and doesn't apply to our regular denomination system of \(1,5,10,25\) since \(25\) is not a multiple of \(10\).<br><br>
+
+For those who are interested, here is a <a href="https://arxiv.org/abs/0809.0400v2">paper</a> that covers the most general conditions for a denomination system to be able to use a greedy algorithm, which they call <i>canonical.</i>
+-->
 <br><br>
 
 
