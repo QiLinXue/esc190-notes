@@ -875,7 +875,7 @@ In general, the time complexity, without memoization, is \[\mathcal{O}(d^t)\] wh
 
     return min_coins</code></pre>
 The main idea is that we stop recursive calls whenever we've already computed the value, which we're storing in the dictionary <code>memo</code>. How can we get the actual solution here? We do a similar thing as before, where <b>every time we update the optimal number, we also update a dictionary that keeps track of the solution that corresponds to this optimal number (i.e. optimal path)</b>. This is a common trick in dynamic programming problems that will be used over and over again.
-<pre><code class="python">def make_change_recursive(denom, target, memo={},solns={}):
+<pre><code class="python">def make_change_recursive(denom, target, memo={}, solns={}):
     if target in memo:
         return memo[target], solns[target]
 
@@ -883,6 +883,7 @@ The main idea is that we stop recursive calls whenever we've already computed th
         memo[0] = 0
         solns[0] = []
         return 0, []
+
     if target < 0:
         memo[target] = np.inf
         solns[target] = None
@@ -907,6 +908,103 @@ The course calendar provides a link to a proof for the <a href="https://math.sta
 
 For those who are interested, here is a <a href="https://arxiv.org/abs/0809.0400v2">paper</a> that covers the most general conditions for a denomination system to be able to use a greedy algorithm, which they call <i>canonical.</i>
 -->
+<h2 id="L28-recursive-complexity">Complexity Analysis for Memoization Solution</h2>
+The time complexity is \(\mathcal{O}(d*t)\) where \(d\) is the number of denominations and \(t\) is the target amount. We can compute this by determining how many times we call the recursive function \verb#make_change_recursive()#. For each target, we recursively call the function \(d\) times (this is where the for loop is). The maximum number of targets is \(t+1\) (this is only an upper bound because sometimes we don't need to call the function for a target). Therefore, the total number of calls is \(d*(t+1))\).<br><br>
+
+It remains to verify that the other operations are constant time. Clearly, the base case is constant time since it involves only comparing numbers and changing the value of an array at a particular index. The only other part that might not be constant time is the line
+<pre><code class="python">optimal_soln = cur_soln + [d]</code></pre>
+because it involves creating a new list. This line is lazy writing and could be solved by pre-allocating enough space for the list so we don't need to create a new list every time, so we can make this part constant time as well. Since all other operations are in constant time, the time complexity is equal to the number of calls, which is \(\mathcal{O}(d*t)\).
+
+<h2 id="L28-memoization-vs-iterative">Memoization vs Iterative</h2>
+In many cases, both memoization and iterative (bottom-up) dynamic programming can be used to solve a problem. However, sometimes memoization might be slightly more efficient. This is because in memoization, we take a top-down approach. This means we don't need to compute the optimal values for every number below our target. We only make recursive calls to the numbers that we actually need.<br><br>
+
+We lose this ability when we take a bottom-up approach with the iterative method as we need to compute the optimal values for every number below our target. Therefore, if there are few denominations that are very spread out and we have a large target, it's going to take much longer for an iterative solution to compute the optimal solution, since it will be computing so many unnecessary values.
+
+<h1 id="L29">L29: Graphs</h1>
+We've already seen graphs twice: we've seen both heaps and linked lists. In general,
+<div class="alert alert-success" role="alert"><br>
+    A <b>graph</b> \(G=(V,E)\) consists of a set of vertices (nodes) \(V\) and a set of edges \(E\).
+</div>
+For example, the following is a graph,
+<center>
+<img src="diagrams/graph.jpg" width="40%">
+</center>
+where 
+\[
+\begin{align*}
+G &= (V,E) \\
+V &= \{v_1, v_2, v_3, v_4, v_5\} \\
+E &= \{e_1, e_2, e_3, e_4, e_\} \\ 
+e_1 &= (v_1, v_2) \\
+e_2 &= (v_2, v_3) \\ 
+e_3 &= (v_2, v_4) \\ 
+e_4 &= (v_3, v_5)
+\end{align*}
+\]
+Here, the edges can either be undirected or directed. If no arrows are drawn, we assume the edges are undirected (so we can travel from \(v_1\) to \(v_2\) and from \(v_2\) to \(v_1\)) and we treat \((v_1,v_2)\) as an unordered pair.<br><br>
+
+Why might we use graphs?
+<ul>
+    <li>Vertices are cities, edges are direct flights between cities: Want to find the best route between cities</li>
+    <ul>
+        <li>Reformulate: Find the shortest distance between two nodes on a graph</li>
+    </ul>
+    <li>Vertices are school classes, edges connect classes whose schedules overlap: Want to find feasible schedules for a student</li>
+    <ul>
+        <li>Reformulate: Find a set of nodes that are completely disconnected from each other (i.e. no two nodes share an edge)</li>
+    </ul>
+    <li>
+        Vertices are objects in memory, edges connect objects that refer to each other: Want to know when an object can be freed
+    </li>
+    <ul>
+        <li>Reformulate: Find the set of nodes that connect to a certain node</li>
+    </ul>
+</ul>
+as just a few examples. The reason this is important is that there are already standard algorithms for dealing with these types of problems, so if we can take our problem and reformulate it as a graph problem, we automatically get the solution. Some different types of graphs:
+<ul>
+    <li><b>Directed Graphs ("digraphs"):</b> Edges have directions associated with them</li>
+    <center>
+        <img src="diagrams/digraph.jpg" width="40%">
+    </center>
+    Here, we write \(e_1 = (v_2,v_1)\) where the order matters now. The first element is the predecessor (or source) and the second element is the successor (or target).
+    <li><b>Weighted graphs:</b> Each edge has a weight associated to it</li>
+    <center>
+        <img src="diagrams/weighted_graph.jpg" width="40%">
+    </center>
+</ul>
+and some terminology:
+<ul>
+    <li>Vertex \(v_1\) is <b>adjacent</b> to vertex \(v_2\) if an edge connects them.</li>
+    <li>A <b>path</b> is a sequence of vertices that are connected by edges. The length of the path is the number of <i>edges</i> in it</li>
+    <li>A <b>cycle</b> is a path that starts and ends at the same vertex</li>
+    <li>A graph with no cycles is called a <b>acyclic graph</b></li>
+    <li>A directed acyclic graph is abbreviated as <b>DAG</b></li>
+    <li>A <b>simple path</b> is a path that does not contain any repeated vertices</li>
+    <li>
+        A <b>simple cycle</b> is a cycle that does not contain any repeated vertices (except for the first and last vertex)
+    </li>
+    <li>
+        Two vertices are <b>connected</b> if there is a path between them
+    </li>
+    <li>
+        A subset of vertices is a <b>connected component</b> if every pair of vertices in the subset is connected
+    </li>
+    <li>
+        The <b>degree</b> of vertex \(v\) is the number of edges that connect to it
+    </li>
+</ul>
+In general, I believe the definitions to be pretty straightforward. It maps pretty well to what you would expect it to be.
+<h2 id="L29-Implementation">Implementation</h2>
+There are two common ways to implement the graph ADT.<br><br>
+
+<ul>
+    <li>
+        We can use a <b>Adjacency Matrix</b>, which is a \(n\times n\) matrix where \verb#M[i][j]=1# if there is an edge between vertex \(i\) and vertex \(j\), and \verb#M[i][j]=0# otherwise.
+    </li>
+    <li>
+        We can use an <b>Adjacency List</b>, which is a list of lists where \verb#L[i]# is a list of all the vertices that are adjacent to vertex \(i\).
+    </li>
+</ul>
 <br><br>
 
 
