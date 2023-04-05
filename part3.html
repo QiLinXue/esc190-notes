@@ -47,7 +47,8 @@
 <link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-
+<link rel="stylesheet" type="text/css" href="https://tikzjax.com/v1/fonts.css">
+<script src="https://tikzjax.com/v1/tikzjax.js"></script>
 <script type="text/javascript">
   (function (i, s, o, g, r, a, m) {
     i["GoogleAnalyticsObject"] = r;
@@ -909,7 +910,7 @@ The course calendar provides a link to a proof for the <a href="https://math.sta
 For those who are interested, here is a <a href="https://arxiv.org/abs/0809.0400v2">paper</a> that covers the most general conditions for a denomination system to be able to use a greedy algorithm, which they call <i>canonical.</i>
 -->
 <h2 id="L28-recursive-complexity">Complexity Analysis for Memoization Solution</h2>
-The time complexity is \(\mathcal{O}(d*t)\) where \(d\) is the number of denominations and \(t\) is the target amount. We can compute this by determining how many times we call the recursive function \verb#make_change_recursive()#. For each target, we recursively call the function \(d\) times (this is where the for loop is). The maximum number of targets is \(t+1\) (this is only an upper bound because sometimes we don't need to call the function for a target). Therefore, the total number of calls is \(d*(t+1))\).<br><br>
+The time complexity is \(\mathcal{O}(d*t)\) where \(d\) is the number of denominations and \(t\) is the target amount. We can compute this by determining how many times we call the recursive function \(\verb#make_change_recursive()#\). For each target, we recursively call the function \(d\) times (this is where the for loop is). The maximum number of targets is \(t+1\) (this is only an upper bound because sometimes we don't need to call the function for a target). Therefore, the total number of calls is \(d*(t+1))\).<br><br>
 
 It remains to verify that the other operations are constant time. Clearly, the base case is constant time since it involves only comparing numbers and changing the value of an array at a particular index. The only other part that might not be constant time is the line
 <pre><code class="python">optimal_soln = cur_soln + [d]</code></pre>
@@ -999,15 +1000,169 @@ There are two common ways to implement the graph ADT.<br><br>
 
 <ul>
     <li>
-        We can use a <b>Adjacency Matrix</b>, which is a \(n\times n\) matrix where \verb#M[i][j]=1# if there is an edge between vertex \(i\) and vertex \(j\), and \verb#M[i][j]=0# otherwise.
+        We can use a <b>Adjacency Matrix</b>, which is a \(n\times n\) matrix where \(\verb#M[i][j]=1#\) if there is an edge between vertex \(i\) and vertex \(j\), and \(\verb#M[i][j]=0#\) otherwise.
     </li>
     <li>
-        We can use an <b>Adjacency List</b>, which is a list of lists where \verb#L[i]# is a list of all the vertices that are adjacent to vertex \(i\).
+        We can use an <b>Adjacency List</b>, which is a list of lists where \(\verb#L[i]#\) is a list of all the vertices that are adjacent to vertex \(i\).
     </li>
 </ul>
+<h1 id="L30">L30: Graphs (continued)</h1>
+<h2 id="L30-adjacency-list">Adjacency List</h2>
+We can implement an adjacency list in Python as follows:
+<pre><code class="python">class Node:
+    def __init__(self, data):
+        self.data = data
+        self.adjacent = []
+
+node1 = Node('TO')
+node2 = Node('Ottawa')
+node3 = Node('Orlando')
+
+node1.adjacent.append(node2)
+node1.adjacent.append(node3)
+node2.adjacent.append(node1)
+node3.adjacent.append(node1)
+</code></pre>
+which gives the following graph:
 <br><br>
+<center>
+    <script type="text/tikz">
+        \begin{tikzpicture}[scale=3]
+        \tikzstyle{vertex}=[circle,fill=black!25,minimum size=40pt,inner sep=2pt]
+        \node[vertex] (G_1) at (0,2)  {TO};
+        \node[vertex] (G_2) at (0.7,1)  {Ottawa};
+        \node[vertex] (G_3) at (-0.7,1)  {Orlando};
 
+        \draw (G_1) -- (G_2);
+        \draw (G_1) -- (G_3);
+        \end{tikzpicture}
+      </script>
+</center>
+For an undirected graph, if there are \(N\) edges, then the sum of the lengths of all the adjacency lists is \(2N\).
 
+<h2 id="L30-adjacency-matrix">Adjacency Matrix</h2>
+We can implement an adjacency matrix in Python by defining the following <i>symmetric</i> matrix (for undirected graphs) with \(0\)s on the diagonal:
+\[
+A = \begin{pmatrix}
+0 & 1 & 1 \\ 
+1 & 0 & 0 \\ 
+1 & 0 & 0
+\end{pmatrix}
+\]
+where we have labelled \(\verb#TO#\) as node 1, \(\verb#Ottawa#\) as node 2, and \(\verb#Orlando#\) as node 3. Then the entry \(A_{ij}\) is 1 if there is an edge starting at node \(i\) and ending at node \(j\). Recall from linear algebra that \(A_{ij}\) refers to the element in the \(i\)th row and \(j\)th column of the matrix \(A\).<br><br>
+<h2 id = "L30-pagerank">Pagerank</h2>
+One very notable application of an adjacency matrix is the <b>PageRank</b> algorithm, which is the first and most well-known algorithm used by Google to rank web pages. It essentially tries to capture the idea of which pages are the most important by asking the following question: If I start at a random page and follow random links, what is the probability that I will end up at page \(i\)?
+<ol>
+    <li>Normalize the matrix \(A\) to be
+        \[
+A = \begin{pmatrix}
+0 & 1/2 & 1/2 \\ 
+1 & 0 & 0 \\ 
+1 & 0 & 0
+\end{pmatrix}
+\]
+such that each row sums to 1 (i.e. the total probability of ending up at a site when clicking a link is 1).
+    </li>
+    <li>Imagine that we start at state \(v_0\)</li>
+    <li>The (un-ormalized) probability distribution of reaching some site after a single link click is given by \( A^T v_0\). Why is this the case? If the current site is Toronto, then we can write 
+\[
+v_0 = \begin{pmatrix}
+1 \\
+0 \\
+0
+\end{pmatrix}
+\]
+and the (transpose) adjacency matrix \(A^T\) maps this vector to the first row of the matrix, which contains all the sites that Toronto links to.<br><br>
+
+In lecture, Professor Guerzhoy wrote \(Av_0\) instead. This gives a different result as the result will be a column that represents the sites that lead to Toronto. For a symmetric adjacency matrix, there is no difference, but in reality, we wouldn't have it to be symmetrical.
+    </li>
+    <li>
+        Just doing this once is a horrible way of measuring the importance of a site. Someone could cheat the system very easily by creating several sites that all link to the same site. The idea is that if we have a very popular site being linked to by many sites, then many of these sites should also be very popular.<br><br>
+
+        This idea is reflected by iterating the process of multiplying by \(A^T\) several times. Suppose we run it \(k\) times, where \(k\) is some very large number. Surprisingly, the result should actually converge! We get 
+        \[
+            (A^T)^{k} \vec{v}_0 \to \vec{p}
+        \]
+        where \(\vec{p}\) is the probability distribution of reaching any site after \(k\) clicks. This result should not change much depending on what the initial state is (barring some edge cases such as islands), but it is typically done by assuming an initial uniform distribution.<br><br>
+
+        The \(i^\text{th}\) element of \(\vec{p}\) will then be the page rank of the \(i^\text{th}\) site. The intuition is that if we start at a random site and click links, then the probability of ending up at site \(i\) is equal to the page rank of site \(i\).
+    </li>
+</ol>
+Outside of pagerank, this is a very fundamental idea that allows us to see which nodes are connected.
+<h2 id="L30-graph-implementation">Graph Implementation using Adjacency Matrix</h2>
+We can implement a graph in Python as follows. Note that I have fixed a few minor bugs from lecture.
+<pre><code class="python">class Graph:
+    def __init__(self, capacity):
+        self.capacity = capacity # The maximum number of nodes
+        self.cur_num_nodes = 0 # The current number of nodes
+        self.nodes = [] # The list of nodes
+        self.indices = {} # A dictionary mapping node names to indices
+        self.adj_array = [] # The adjacency array
+
+        # Initialize the adjacency array
+        for i in range(self.capacity):
+            self.adj_array.append([None] * self.capacity)
+
+    def expand(self):
+        '''
+        Expand the graph by doubling the capacity.
+        '''
+        adj_array_new = []
+        self.capacity *= 2
+        
+        # Create a new adjacency array
+        for i in range(self.capacity):
+            adj_array_new.append([None] * self.capacity)
+
+        # Copy the old adjacency array into the new one
+        for i in range(self.cur_num_nodes):
+            for j in range(self.cur_num_nodes):
+                adj_array_new[i][j] = self.adj_array[i][j]
+
+        self.adj_array = adj_array_new
+
+    def register_node(self, name):
+        '''
+        Register a new node in the graph.
+        '''
+
+        # If the graph is full, expand it
+        if self.capacity == self.cur_num_nodes:
+            self.expand()
+
+        # Add the node to the graph
+        self.nodes.append(name)
+
+        # Add the node to the adjacency array
+        self.indices[name] = self.cur_num_nodes
+
+        # Increment the number of nodes
+        self.cur_num_nodes += 1
+
+        # Initialize the new row and column
+        for i in range(self.cur_num_nodes):
+            self.adj_array[i][self.cur_num_nodes-1] = 0
+            self.adj_array[self.cur_num_nodes-1][i] = 0
+        
+    def connect_by_name(self, name1, name2):
+        '''
+        Connect two nodes in the graph by name.
+        '''
+
+        # If either node is not in the graph, add it
+        if name1 not in self.indices:
+            self.register_node(name1)
+        if name2 not in self.indices:
+            self.register_node(name2)
+        
+        # Connect the nodes
+        self.connect_by_index(self.indices[name1], self.indices[name2])
+        
+    def connect_by_index(self, index1, index2):
+        '''
+        Connect two nodes in the graph by index.
+        '''
+        self.adj_array[index1][index2] = 1</code></pre>
   <br><br>
 <br><br><br><br><br>
 </div></div></div></body></html>    
