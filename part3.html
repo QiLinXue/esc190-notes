@@ -1095,7 +1095,9 @@ Suppose \(\vec{w}_1\) has the largest eigenvalue. Then for large \(k\) we have
 \[M^k\vec{v}_0 \approx a_1\lambda_1^k \vec{w}_1\]
 So we can imagine that if we start at a random site, then the most likely site to end up at is the site with the largest eigenvalue.<br><br>
 
-In fact, it's possible to show (with more linear algebra) that an adjacency matrix where the rows sum to 1 will always have an eigenvalue of \(1\) with a multiplicity of \(1\). In fact, all other eigenvalues will be smaller than \(1\). This shows more clearly that the other eigenvectors will die off quickly as we keep iterating. <i>Note:</i> The above was only used to illustrate the intuition you should have for this kind of problem. There are a couple of flaws with this argument (which we need more math to fix), but if this is something you are interested in, you cover stuff like this (i.e. Markov chains) more in depth in <b>ROB311</b>. <br><br>
+In fact, it's possible to show (with more linear algebra) that an adjacency matrix where the rows sum to 1 will always have an eigenvalue of \(1\) with a multiplicity of \(1\). In fact, all other eigenvalues will be smaller than \(1\). This shows more clearly that the other eigenvectors will die off quickly as we keep iterating. <i>Note:</i> The above was only used to illustrate the intuition you should have for this kind of problem.<br><br>
+
+There are a couple of flaws with this argument (which we need more math to fix), but if this is something you are interested in, you cover stuff like this (i.e. Markov chains) more in depth in <b>ECE368</b> (and a bit in <b>ROB311</b>) if you decide to do the Machine Intelligence option. <br><br>
 
 Outside of pagerank, this is a very fundamental idea that allows us to see which nodes are connected.
 <h2 id="L30-graph-implementation">Graph Implementation using Adjacency Matrix</h2>
