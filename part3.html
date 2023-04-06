@@ -1064,7 +1064,7 @@ A = \begin{pmatrix}
 such that each row sums to 1 (i.e. the total probability of ending up at a site when clicking a link is 1).
     </li>
     <li>Imagine that we start at state \(v_0\)</li>
-    <li>The (un-ormalized) probability distribution of reaching some site after a single link click is given by \( A^T v_0\). Why is this the case? If the current site is Toronto, then we can write 
+    <li>The probability distribution of reaching some site after a single link click is given by \( M v_0\) where \(M=A^T\). Why is this the case? If the current site is Toronto, then we can write 
 \[
 v_0 = \begin{pmatrix}
 1 \\
@@ -1072,22 +1072,31 @@ v_0 = \begin{pmatrix}
 0
 \end{pmatrix}
 \]
-and the (transpose) adjacency matrix \(A^T\) maps this vector to the first row of the matrix, which contains all the sites that Toronto links to.<br><br>
+and the (transpose) adjacency matrix \(M=A^T\) maps this vector to the first row of the matrix, which contains all the sites that Toronto links to.<br><br>
 
 In lecture, Professor Guerzhoy wrote \(Av_0\) instead. This gives a different result as the result will be a column that represents the sites that lead to Toronto. For a symmetric adjacency matrix, there is no difference, but in reality, we wouldn't have it to be symmetrical.
     </li>
     <li>
         Just doing this once is a horrible way of measuring the importance of a site. Someone could cheat the system very easily by creating several sites that all link to the same site. The idea is that if we have a very popular site being linked to by many sites, then many of these sites should also be very popular.<br><br>
 
-        This idea is reflected by iterating the process of multiplying by \(A^T\) several times. Suppose we run it \(k\) times, where \(k\) is some very large number. Surprisingly, the result should actually converge! We get 
+        This idea is reflected by iterating the process of multiplying by \(M=A^T\) several times. Suppose we run it \(k\) times, where \(k\) is some very large number. Surprisingly, the result should actually converge! We get 
         \[
-            (A^T)^{k} \vec{v}_0 \to \vec{p}
+            (M)^{k} \vec{v}_0 \to \vec{p}
         \]
         where \(\vec{p}\) is the probability distribution of reaching any site after \(k\) clicks. This result should not change much depending on what the initial state is (barring some edge cases such as islands), but it is typically done by assuming an initial uniform distribution.<br><br>
 
         The \(i^\text{th}\) element of \(\vec{p}\) will then be the page rank of the \(i^\text{th}\) site. The intuition is that if we start at a random site and click links, then the probability of ending up at site \(i\) is equal to the page rank of site \(i\).
     </li>
 </ol>
+Why does this work? Why would we even expect the solution to converge at all? The basic idea is that we can decompose \(v_0\) into the eigenvectors \((\vec{w}_1,\vec{w}_2,\dots,\vec{w}_n)\)
+such that 
+\[M^{k}\vec{v}_0 = M^k(a_0\vec{w}_1 + \cdots + a_n\vec{w}_n) = a_1\lambda_1^k \vec{w}_1 + \cdots + a_n\lambda_n^k \vec{w}_n\]
+Suppose \(\vec{w}_1\) has the largest eigenvalue. Then for large \(k\) we have 
+\[M^k\vec{v}_0 \approx a_1\lambda_1^k \vec{w}_1\]
+So we can imagine that if we start at a random site, then the most likely site to end up at is the site with the largest eigenvalue.<br><br>
+
+In fact, it's possible to show (with more linear algebra) that an adjacency matrix where the rows sum to 1 will always have an eigenvalue of \(1\) with a multiplicity of \(1\). In fact, all other eigenvalues will be smaller than \(1\). This shows more clearly that the other eigenvectors will die off quickly as we keep iterating. <i>Note:</i> The above was only used to illustrate the intuition you should have for this kind of problem. There are a couple of flaws with this argument (which we need more math to fix), but if this is something you are interested in, you cover stuff like this (i.e. Markov chains) more in depth in <b>ROB311</b>. <br><br>
+
 Outside of pagerank, this is a very fundamental idea that allows us to see which nodes are connected.
 <h2 id="L30-graph-implementation">Graph Implementation using Adjacency Matrix</h2>
 We can implement a graph in Python as follows. Note that I have fixed a few minor bugs from lecture.
@@ -1163,6 +1172,140 @@ We can implement a graph in Python as follows. Note that I have fixed a few mino
         Connect two nodes in the graph by index.
         '''
         self.adj_array[index1][index2] = 1</code></pre>
-  <br><br>
+<h1 id="L31">L31: Graphs (Part III)</h1>
+<h2 id="L31-adjacency-with-weights">Adjacency Matrix with Weights</h2>
+What if we had an adjacency matrix with weights? Given the below graph,
+<center>
+    <script type="text/tikz">
+        \begin{tikzpicture}[scale=3]
+        \tikzstyle{vertex}=[circle,fill=black!25,minimum size=40pt,inner sep=2pt]
+        \node[vertex] (G_3) at (0,0)  {3};
+        \node[vertex] (G_0) at (0,1)  {0};
+        \node[vertex] (G_2) at (1,0)  {2};
+        \node[vertex] (G_1) at (1,1)  {1};
+
+        \draw (G_0) -- (G_3) node[midway,left] {6};
+        \draw (G_0) -- (G_1) node[midway, above] {8};
+        \draw (G_1) -- (G_2) node[midway, right] {9};
+        \end{tikzpicture}
+      </script>
+</center>
+the adjacency matrix is 
+\[
+A = \begin{bmatrix}
+\infty & 8 & \infty  & 6 \\ 
+8 & \infty & 9 & \infty \\
+\infty & 9 & \infty & \infty \\
+6 & \infty & \infty & \infty\end{bmatrix}
+\]
+where we have \(\infty\) if no edges exist between two nodes.
+<h2 id="L31-adjacency-list-with-ll">Adjacency List with Linked Lists</h2>
+We can also implement an adjacency list with linked lists. 
+<center>
+    <img src="diagrams/adj_list_LL.jpg" width="100%">
+</center>
+This can be useful because it could be more memory efficient, allows the size to be resized easily, and accessing the neighbours is very straightforward.
+<h2 id="L31-complexity">Complexity</h2>
+Using an adjacency matrix versus an adjacency matrix has certain trade-offs. The two most common operations is checking if there is an edge between \(v_i\) and \(v_j\) as well as finding all the vertices adjacent to a vertex \(v_i\)
+<ul>
+    <li>Detecting if edge exists</li>
+    <ul>
+        <li>Adjacency Matrix: O(1). This is because we can directly access the element in the matrix.</li> 
+
+        <li>Adjacency List: O(d) where \(d\) is the maximum degree in the graph. This is because we have to traverse the linked list to find the edge.</li>
+    </ul>
+    <li>
+        Finding all neighbours
+    </li>
+    <ul>
+        <li>Adjacency Matrix: \(O(|V|)\) where \(|V|\) is the number of vertices. This is because we have to traverse the entire row.</li>
+        <li>
+            Adjacency List: \(O(d)\) where \(d\) is the maximum degree in the graph. This is because we have to traverse the linked list to find the edge.
+        </li>
+    </ul>
+</ul>
+When \(d\) is much smaller than \(|V|\) it's clear that the adjacency list is more efficient. However, when \(d\) is close to \(|V|\) then the adjacency matrix is more efficient.<br><br>
+
+We also have to think about space requirements. An adjacency matrix needs a space of \(O(|V|^2)\) because this is the number of entries in the matrix.<br><br>
+
+An adjacency list has a space requirement of \(O(|E| + |V|)\). This is slightly trickier to figure out why. This is because we want to store a total of \(|V|\) vertices. For each of the \(|V|\) vertices, we want to store a linked list such that the total number of elements of the lined lists is equal to \(E\) (or \(2E\) for an undirected graph). Therefore, we have a space requirement of \(O(|E| + |V|)\).
+
+<h2 id="L31-graph-traversal">Graph Traversal Algorithm</h2>
+Suppose we have a graph and we wish to visit (i.e. in order to print) each vertex exactly once. We don't care about the order, as long as we print everything. How can we do this? A general way to do it is via the below algorithm
+<pre><code class="pseudocode">while (there are non-visited nodes)
+    Initialize data structure DS
+    Add a non-visited vertex v_i to DS
+    Mark v_i as visited
+    while (DS is not empty)
+        Remove v_j from DS
+        Mark v_j as visited
+        Add non-visited vertices adjacent to v_j to DS
+</code></pre>
+where the specific data structure DS we implement may change the order in which we traverse the graph in. At a high level, we go through the nodes one by one and every time we visit a node, we mark it as visited (so we don't visit it again) and add all the non-visited neighbours to the data structure.<br><br>
+
+When the vertex gets removed, we can print out its value. For a connected graph, then the outer while loop will only run once. The reason for there being two while loops is that if we start off on an "island" eventually we'll get to a point where we have no more vertices in our data structure but there will still be nodes on another island.
+<h2 id="L31-BFS">Breadth First Search</h2>
+We can perform a breadth-first-search (BFS) by using a queue as our data structure. Suppose we have the following graph
+
+<center>
+<script type="text/tikz">
+    \begin{tikzpicture}[scale=3]
+    \tikzstyle{vertex}=[circle,fill=black!25,minimum size=20pt,inner sep=2pt]
+    \node[vertex] (G_1) at (0,1)  {A};
+    \node[vertex] (G_2) at (1,1)  {B};
+    \node[vertex] (G_3) at (2,0)  {C};
+    \node[vertex] (G_4) at (1,0)  {D};
+    \node[vertex] (G_5) at (0,0)  {E};
+    \node[vertex] (G_6) at (0,-1)  {F};
+
+    \draw (G_1) -- (G_2) -- (G_3) -- (G_4) -- (G_5) -- cycle;
+    \draw (G_5) -- (G_2) -- (G_4) -- cycle;
+    \draw (G_5) -- (G_6) -- cycle;
+    \end{tikzpicture}
+</script>
+</center>
+then implementing BFS starting from node \(C\) will give te traversal (i.e. if we print when we remove the node)
+\[
+  C \to B \to D \to A \to E \to F
+\]
+which can be illustrated below:
+<pre>
+-----------------------------------------
+Queue Contents              Traversal
+----------------------------------------
+C                           empty
+B D                         C
+D A                         C B
+A E                         C B D
+E F                         C B D A
+F                           C B D A E
+empty                       C B D A E F
+----------------------------------------
+</pre>
+See the course slides for another example. We can use a chess analogy for why we call this breadth first.<br><br>
+
+In this strategy game, I might have several possible moves on my turn. For each of my viable moves, my opponent has several possible moves, and so forth. One way I can approach the game is to look at all my options and for each option, look at all my opponent's options, and so forth. In a sense, my "looking-ahead" depth slowly increases. This particular strategy might be useful in the early game.<br><br>
+
+Compare this to a depth-first-search (which we will talk about next). Instead of looking at all my options, I look at one particular option, and then look at one specific response from my opponent to that option, and so forth. Each computation I make in my head makes me look one step further (I won't consider the other possible moves I can make, yet!) Eventually, I'll get to the end (perhaps checkmate!) and I can start working backwards slowly. If my opponent moved somewhere else, is it still checkmate?<br><br>
+
+Depth first allows me to explore a particular line in extreme depth before moving on to consider another line while breadth first allows me to explore all lines simultaneously but slowly. This is a trade-off in graph theory just like in chess. In chess, you might want to use a depth-first-search near the end-game but you might want to use a breadth-first-search in the opening.
+<h2 id="L31-DFS">Depth First Search</h2>
+We can perform a depth-first-search (DFS) by using a stack (first in last out) as our data structure. Suppose we have the same graph as above. Then starting from \(C\) we get the traversal 
+\[C \to D \to E \to F \to B \to A\]
+which can be illustrated below:
+<pre>
+-----------------------------------------
+Stack Contents              Traversal
+----------------------------------------
+C                           empty
+B D                         C
+B F E                       C D
+B F                         C D E
+B                           C D E F
+A                           C D E F B
+empty                       C D E F B A
+----------------------------------------
+</pre>
+
 <br><br><br><br><br>
 </div></div></div></body></html>    
