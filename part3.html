@@ -1751,7 +1751,57 @@ Intuitively, this helps you explore more promising nodes first. If we use the sa
 <center><img src="assets/Astar.png" width="80%"/></center>
 An interesting theorem that is beyond the scope of this course.
 <div class="alert alert-primary" role="alert">
-If the heuristic is designed to be an underestimate of how much it actually costs to get to the destination, then A* will always find the shortest path.
+    If the heuristic is designed to be an underestimate of how much it actually costs to get to the destination, then A* will always find the shortest path.
 </div>
+<h1 id="L35">L35: Hashing</h1>
+This lecture will cover the basics of how sets and dictionaries work.
+<div class="alert alert-success" role="alert"><br>
+    A <b>map</b> is a collection of <i>(key, value)</i> pairs, where the keys are unique, but the values may not be. The two operations are:
+    <ul>
+        <li><code>get(key)</code> gets the value at the specific key</li>
+        <li><code>put(key, value)</code> puts the pair (key,value) in the map</li>
+    </ul>
+</div>
+For example, a python dictionary is an implementation of a map. How can we implement this?
+<ul>We can use a binary tree (specifically an AVL tree, don't need to know this). The pairs are stored as entries on this tree, sorted using a function that compares the keys. The operations \(\verb#get#\) and \(\verb#put#\) take \(\mathcal{O}(\log n)\) time</ul>
+<ul>Use an array of values. We permit only integer keys and if the integers are big, the array may need to be large. If I want to store 100 pairs but one of my keys is \(10000\), then my array will have a size of at least \(10000\)! The advantage is takes constant time for \(\verb#get#\) and \(\verb#put#\)</ul>
+<ul>Use hash tables. This is an extension of the array idea, but we don't need very large arrays, and keys are no longer limited to integers!</ul>
+<h2 id="L35-hash-tables">Hash Tables</h2>
+To implement a hash table, we can define a table (i.e. array) of length \(\verb#TableSize#\). Then we can define a function \(hash(key)\) that maps keys to integer indices in the range \(0,\dots,\verb#TableSize#-1\).
 
+Assuming that \(hash(key)\) takes constant time, then we can implement the \(\verb#get#\) and \(\verb#put#\) operations in constant time. Specifically, we want this function to be an <b>injection.</b> In other words, there is a one-to-one map between keys and indices. This is because if we have two keys that map to the same index, then we have a collision.<br><br>
+
+However, in reality this is not possible. There are a <a href="https://en.wikipedia.org/wiki/Countable_set">countably</a> infinite number of keys, but only a finite \(\verb#TableSize#\) entries in the array.
+
+This isn't that bad though! For the most part, we can try to avoid collisions by distributing items evenly, and if there are collisions, we just need to find a way to resolve them.
+<h2 id="L35-hash-function">Hash Functions</h2>
+From now on, we'll be working with integer keys. If we have a string as a key, we can simply convert it to its ASCII value. Remember from before that we want to save space, so we want to make \(\verb#TableSize#\) as small as possible, and for that reason, the hash function \(hash(x)=x\) is bad. Instead, we can try 
+\[hash(x) = x \% \verb#TableSize#\]
+where the symbol \(%\) is the modulo operator. This is a good hash function because it maps all integers to the range \(0,\dots,\verb#TableSize#-1\). However, it's not a good hash function because it's not an injection. For example, if we have a table of size \(10\) and we have the keys \(\{0,10,20,30,\dots,90\}\), then they will all map to the same index.<br><br>
+
+Therefore, this hash function is only good if the keys we are working with are well distributed, in the sense that the hash function will map them to a relatively even distribution.<br><br>
+
+If the key is a compound object (i.e. using a tuple as a key), we can construct the hash function
+\[hash(s,x) = (hash_1(s) \times p_1 + hash_2(x) \times p_2)\% \verb#TableSize#\]
+where \(p_1\) and \(p_2\) are two prime numbers. The reason we want \(p_1,p_2\) to be prime is so that we don't have empty space. If they shared a factor, i.e. the number \(2\), then it'ls possible that we're skipping all the odd cells in the table.
+<h2 id="L35-collisions-chain">Collisions (Chaining)</h2>
+No matter how good our hash function is, we'll always have collisions. How can we deal with them? One method is via <b>separate chaining</b> The idea is that we can keep all the items that map to the same index in a linked list.<br><br>
+
+The runtime depends on the number of elements in a list on average. We can define the <b>load factor</b>
+\[\lambda = \frac{N}{\verb#TableSize#}\]
+where \[N\] is the total number of entries. It represents the average number of items in a linked list. While the worst-case run time is still \(\mathcal{O}(n)\), because everything could collide with everything.
+
+However, if we have a good hash function and everything is distributed evenly, then the average run time is \(\mathcal{O}(\lambda)\). This is because if we're trying to lookup an item and it fails, we need to search all the nodes to ensure that, which is \(\lambda\) operations. If it succeeds, then on average we need to perform \(\lambda/2\) operations. Either way, we get \(\mathcal{O})(\lambda)\).<br><br>
+
+To ensure that we still have constant time operations, we want \(\lambda \approx 1\) and we increase the table size whenever needed. However, we can't simply <i>only</i> double the size of the table, because the same hash function will no longer work for the keys stored previously. This is because the hash function depends on the table size! To resolve this, we'll double the table size and then rehash all the keys.
+<h2 id="L35-collisions-Probing">Collisions (Probing)</h2>
+Another way to deal with collisions is via <b>probing</b>. The idea is that we don't store the items in a linked list, but instead we store them in the table itself. If there is a collision, we can try to find another empty cell to store the item.<br><br>
+
+For example, if we have <b>linear</b> probing, whenever we have a collision, we can try to store the item in the next cell. If that cell is occupied, then we try the next cell, and so on. This is easy to implement but in practice, it's not very good. The reason is that if we have a lot of collisions in close proximity to each other, it creates a cluster of occupied slots, making it more likely for subsequent collisions to occur in the same cluster, further exacerbating the problem.<br><br>
+
+There are more advanced methods of probing that can fix this issue. <br><br>
+
+The loading factor \(\lambda\) can be defined the same way, but note that with probing, we have 
+\[\lambda \le 1\]
+and the table is full if \(\lambda = 1\). Therefore, the interpretation is slightly different.
 </div></div></div></body></html>    
