@@ -544,6 +544,7 @@ How do we insert an element into a heap? We have the pseudocode
     while k > 1 and pq[k/2] > pq[k]
         swap(pq[k], pq[k/2])
         k = k / 2
+    n = n + 1 // increment the size of the heap
 </code></pre>
 To think of this, treat <code>k</code> as current node, and treat <code>k/2</code> as parent node (by the formulas given in the previous lecture). Then the rest is just applying the <i>percolation</i> described earlier.
 <h2 id="L26-extra-min">Extracting the Minimum</h2>
