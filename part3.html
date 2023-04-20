@@ -1681,4 +1681,76 @@ will always give us the optimal path. The above proof also shows why we must ass
 The complexity depends on the implementation details. The simplest implementation is to add one vertex to \(S\) and then search through all possible additional vertices. For each vertex, we're looking at all the other vertices, so this time complexity is \(\mathcal{O}(|V|^2)\).<br><br>
 
 However, there are more efficient implementations. One way to improve the time complexity is to use a <b>priority queue.</b> That is, instead of traversing explored nodes via BFS, we traverse it by sorting the nodes by their distance from the origin, which will give a time complexity of \(\mathcal{O}(|E|\log|V|\). This is because inserting and deleting elements in a priority queue has a complexity of \(\mathcal{O}(\log|V|)\). Since we perform these operations for each edge, the overall complexity becomes \(\mathcal{O}(|E|\log|V|)\).
+<h1 id="L34">L34: shortest Path (Part II)</h1>
+<h2 id="L34-faster-dijkstra">More Efficient Dijkstra</h2>
+At the end of last lecture, we talked about more efficient implementations using a priority queue. The psuedocode for this is 
+<pre><code class="pseudocode">Dijkstra_fast(G = V(,E), source)
+    S = {} # set of explored nodes
+    pq = [(0, source)] # priority queue
+    while pq is not empty
+
+    if cur_node in S
+            continue # we've already explored this node
+
+        cur_dist, cur_node = pq.pop() # get the node with the smallest distance
+        d(cur_node) = cur_dist
+
+        add cur_node to S
+        for each neighbour v of cur_node 
+            pq.push((cur_dist + |(cur_node, v)|, v))
+</code></pre>
+The code runs until the priority queue becomes empty. At each iteration, we pop the node with the smallest distance from the priority queue. If this node has already been explored, we continue. Otherwise, we add it to the set of explored nodes and add all of its neighbours to the priority queue, alongside their respective distances from the source.<br><br>
+
+Note that this is the same algorithm as Dijkstra. What about time complexity? Recall that popping and pushing into a priority queue is \(\mathcal{O}(log|V|)\). The upper bound on the number of times a node is pushed is \(2|E|\) (since each edge connects two nodes together). Therefore, this gives us a total time complexity of 
+\[ \mathcal{O}(|E|\log|V|) \]
+<h2 id="L34-problem">The Problem with Dijkstra</h2>
+The problem with Dijkstra is that it in practice, it's often too slow for a lot of tasks, even if we optimize it. Consider Google Maps. There's so much data that it's impossible to run Dijkstra on all the nodes. Or in video games, path-finding using Dijkstra is too slow if you have a lot of fine detail! How can we fix this?
+<h2 id="L34-greedy">Greedy Best-First Search</h2>
+Instead of using a method that guarantees to find the shortest path, we can use a method that in most cases is a good enough approximation! The idea is to introduce a <b>heuristic function</b> \(h(node)\) that is an estimate for how far the node is from the destination. This is not guaranteed to find the shortest path but will work well if the heuristic is good. The pseudocode is 
+<pre><code class="psuedocode">Greedy-Best-First(G = (V,E), source, dest):
+    S = {}
+    v = source
+    while v is not dest
+        select v from the neighbourhood of S with smallest h(v)
+        add v to S
+</code></pre>
+This is analogous to how a human would look to find the shortest path. If there is a maze and you're trying to find how to get from the start to the end, you would prioritize paths that lead you closer to the end. But since you don't actually know if it's closer or not, you would just pick the path that looks the closest. This is the same idea as the heuristic function.<br><br>
+
+As an example, consider a grid of cells where all the cells are connected vertically and horizontally and we want to find the shortest path from the source (in pink) to the destination (in purple). Dijkstra's algorithm gives the following path (shown in white dotted lines), courtesy of <a href="http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html">stanford</a>.
+<center><img src="assets/dijkstra_img.png" width="80%"/></center>
+The cells coloured in blue represent all the cells that Dijkstra explored in order to get to the destination. However, if we use a heuristic function that is the Euclidean distance from the destination, i.e. 
+\[h(node) = \sqrt{(node_x-dest_x)^2 + (node_y-dest_y)^2}\]
+then we get the following diagram 
+<center><img src="assets/greedy_1.png" width="80%"/></center>
+Note that it's able to recover a path with the shortest distance while exploring much less nodes! However, it doesn't always work. If we introduce a wall, then the heuristic function will be wrong and we'll get the following path
+<center><img src="assets/greedy_2.png" width="80%"/></center>
+while Dijkstra will still give us the correct path. Note that the above diagram is slightly misleading. The lecture slides say that the path should go to the extreme right first, but this doesn't need to be the case. Here's why: When the path "reaches" the bottom wall, you would expect it to move right (because this minimizes the heuristic). This is true, in the sense that the algorithm will explore to the right first. But soon, it will find out that it's a dead end and it can't back track (because you can't revisit nodes). Eventually, the cell to explore that minimizes the heuristic will be the cell to the left of when we first hit the bottom wall.<br><br>
+
+The point of confusion comes from the fact that the algorithm we just discussed doesn't actually give us the path! It only gives us what nodes to explore. One common way to get the path is every time we explore a new node, we give it a \(\verb#parent#\) pointer (i.e. the node that came just before this). Then at the end, we can start from the destination and backtrack to the source using the parent pointers.<br><br>
+
+A good animation can be found <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html">here (scroll down to the part that says "Let’s see how well it works:")</a>
+<h2 id="L34-A">A* Algorithm</h1>
+The A* Algorithm takes the best of both worlds. It combines the idea of Greedy Best-First Search with Dijkstra's algorithm. It is extremely similar to the optimized version of dijkstra's, except the priority queue is sorted by the sum of the heuristic function and the actual distance.
+<pre><code class="pseudocode">A*(G = (V,E), source, dest):
+    S = {}
+    pq = [(h(source), 0, source)] # priority queue
+    while pq is not empty
+        if cur_node in S
+            continue # we've already explored this node
+
+        cur_priority, cur_dist, cur_node = pq.pop() # get the node with the smallest distance
+        d(cur_node) = cur_dist
+
+        add cur_node to S
+        for each neighbour v of cur_node
+            cur_dist + |(cur_node, v)| 
+            pq.push((h(v)+dist, dist, v))
+</code></pre>
+Intuitively, this helps you explore more promising nodes first. If we use the same heuristic function as before, we can find the shortest path while exploring less nodes,
+<center><img src="assets/Astar.png" width="80%"/></center>
+An interesting theorem that is beyond the scope of this course.
+<div class="alert alert-primary" role="alert">
+If the heuristic is designed to be an underestimate of how much it actually costs to get to the destination, then A* will always find the shortest path.
+</div>
+
 </div></div></div></body></html>    
